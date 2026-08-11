@@ -5,15 +5,16 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "JetBrains Mono", monospace;
-  --font-display: "JetBrains Mono", monospace;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -47,55 +48,48 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-success: var(--success);
-  --color-success-foreground: var(--success-foreground);
-  --color-warning: var(--warning);
-  --color-warning-foreground: var(--warning-foreground);
-  --color-info: var(--info);
-  --color-brand: var(--brand);
 }
 
 :root {
-  --radius: 0px;
-  --background: #000000;
-  --foreground: #669966;
-  --card: #050805;
-  --card-foreground: #669966;
-  --popover: #050805;
-  --popover-foreground: #669966;
-  --primary: #00FF41;
-  --primary-foreground: #000000;
-  --secondary: #00CC33;
-  --secondary-foreground: #000000;
-  --muted: #0A140A;
-  --muted-foreground: #4A7A4A;
-  --accent: #0A140A;
-  --accent-foreground: #00FF41;
-  --destructive: #FF3333;
-  --destructive-foreground: #000000;
-  --success: #00FF41;
-  --success-foreground: #000000;
-  --warning: #FFCC00;
-  --warning-foreground: #000000;
-  --info: #00CC33;
-  --border: #4A7A4A;
-  --input: #4A7A4A;
-  --ring: #00FF41;
-  --chart-1: #00FF41;
-  --chart-2: #00CC33;
-  --chart-3: #4A7A4A;
-  --chart-4: #2A4A2A;
-  --chart-5: #FF3333;
-  --sidebar: #000000;
-  --sidebar-foreground: #669966;
-  --sidebar-primary: #00FF41;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #0A140A;
-  --sidebar-accent-foreground: #00FF41;
-  --sidebar-border: #4A7A4A;
-  --sidebar-ring: #00FF41;
-
-  --brand: #00FF41;
+  --radius: 0.5rem;
+  /* Dark Navy Backgrounds */
+  --background: #0A0E17;
+  --foreground: #F8FAFC;
+  --card: #0D1220;
+  --card-foreground: #F8FAFC;
+  --popover: #0D1220;
+  --popover-foreground: #F8FAFC;
+  
+  /* Emerald Green Primary */
+  --primary: #10B981;
+  --primary-foreground: #022C22;
+  
+  /* Muted / Secondary Backgrounds */
+  --secondary: #1E293B;
+  --secondary-foreground: #F8FAFC;
+  --muted: #1E293B;
+  --muted-foreground: #94A3B8;
+  --accent: #1E293B;
+  --accent-foreground: #10B981;
+  
+  /* Destructive - Real red for errors only */
+  --destructive: #EF4444;
+  --destructive-foreground: #FEF2F2;
+  
+  /* Borders and Inputs */
+  --border: #1E293B;
+  --input: #1E293B;
+  --ring: #10B981;
+  
+  /* Sidebar */
+  --sidebar: #0A0E17;
+  --sidebar-foreground: #F8FAFC;
+  --sidebar-primary: #10B981;
+  --sidebar-primary-foreground: #022C22;
+  --sidebar-accent: #1E293B;
+  --sidebar-accent-foreground: #10B981;
+  --sidebar-border: #1E293B;
+  --sidebar-ring: #10B981;
 }
 
 @layer base {
@@ -112,80 +106,90 @@
   
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    color: var(--color-primary);
   }
 }
 
-/* Digital Rain Matrix Background (CSS only) */
-@utility matrix-rain {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 0;
-  background: black;
-  opacity: 0.15;
+/* Premium SaaS utility classes */
+@utility emerald-glow {
+  text-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
-.matrix-rain::before {
-  content: "10101001 01101011 11001010 10101001 01101011 11001010 10101001 01101011 11001010 \A 01010101 10101010 01010101 01010101 10101010 01010101 01010101 10101010 01010101 \A 11110000 00001111 10101010 11110000 00001111 10101010 11110000 00001111 10101010 \A 00110011 11001100 01010101 00110011 11001100 01010101 00110011 11001100 01010101 \A 10101001 01101011 11001010 10101001 01101011 11001010 10101001 01101011 11001010 \A 01010101 10101010 01010101 01010101 10101010 01010101 01010101 10101010 01010101";
-  position: absolute;
-  top: -100%;
-  left: 0;
-  width: 100%;
-  height: 200%;
-  font-family: var(--font-sans);
-  color: #00FF41;
-  font-size: 1.2rem;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-all;
-  animation: rain 15s linear infinite;
-  text-align: justify;
+@utility box-glow {
+  box-shadow: 0 4px 24px -4px rgba(16, 185, 129, 0.15);
 }
 
-@keyframes rain {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(50%); }
+@utility emerald-gradient-text {
+  background: linear-gradient(135deg, #34D399, #10B981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-/* CRT Scanline Effect */
-@utility scanline {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 9999;
-  background: linear-gradient(
-    to bottom,
-    rgba(255,255,255,0),
-    rgba(255,255,255,0) 50%,
-    rgba(0,0,0,0.1) 50%,
-    rgba(0,0,0,0.1)
-  );
-  background-size: 100% 4px;
+@utility feature-card-hover {
+  transition: all 0.3s ease;
+  border-top-width: 2px;
+  border-top-color: transparent;
+}
+.feature-card-hover:hover {
+  border-top-color: var(--color-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -10px rgba(16, 185, 129, 0.1);
 }
 
-/* Utility to add glowing text */
-@utility text-glow {
-  text-shadow: 0 0 8px rgba(0, 255, 65, 0.6);
+@utility bg-topography {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%231E293B' fill-opacity='0.25' fill-rule='evenodd'/%3E%3C/svg%3E");
+  animation: bg-pan 30s linear infinite;
+}
+
+@keyframes bg-pan {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100px 100px;
+  }
 }
 
 @utility animate-fade-up {
-  animation: fade-up 0.4s ease-out both;
+  animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes scan {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+  100% {
+    transform: translateY(0px);
   }
 }

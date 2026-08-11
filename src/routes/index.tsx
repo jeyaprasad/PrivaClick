@@ -1,22 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowRight,
-  Eye,
-  FileCheck2,
-  Fingerprint,
-  Lock,
   ShieldCheck,
-  TerminalSquare,
+  FileText,
+  Lock,
+  ScanEye,
+  BrainCircuit,
+  Database,
+  Activity,
+  Sliders,
+  Search,
+  CheckCircle2,
+  FileArchive,
 } from "lucide-react";
-import heroImage from "@/assets/hero.jpg";
 import { Button } from "@/components/ui/button";
 import { SiteFooter } from "@/components/SiteFooter";
-import { useState, useEffect } from "react";
+import { MatrixRain } from "@/components/MatrixRain";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Privaclick | Terminal" },
+      { title: "Privaclick — Protect Your Privacy Online" },
       {
         name: "description",
         content:
@@ -27,280 +31,256 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-const steps = [
-  {
-    icon: UploadCloud,
-    title: "UPLOAD_PROOF",
-    body: "Add a few reference photos. They stay private and are only used to look for matches.",
-  },
-  {
-    icon: Eye,
-    title: "INIT_MONITOR",
-    body: "Our matching engine keeps an eye on the platforms you choose and flags likely matches.",
-  },
-  {
-    icon: FileCheck2,
-    title: "EXECUTE_TAKEDOWN",
-    body: "Review each match yourself. Nothing is reported unless you say so.",
-  },
-];
-
-function UploadCloud(props: any) {
-  return <TerminalSquare {...props} />;
-}
-
-function TypewriterText({ text, delay = 0, speed = 50 }: { text: string, delay?: number, speed?: number }) {
-  const [displayedText, setDisplayedText] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const [isComplete, setIsComplete] = useState(false);
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-    let interval: ReturnType<typeof setInterval>;
-    
-    timeout = setTimeout(() => {
-      setIsTyping(true);
-      let i = 0;
-      interval = setInterval(() => {
-        setDisplayedText(text.substring(0, i + 1));
-        i++;
-        if (i >= text.length) {
-          clearInterval(interval);
-          setIsTyping(false);
-          setIsComplete(true);
-        }
-      }, speed);
-    }, delay);
-    
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, [text, delay, speed]);
-
+function Hero3DGraphic() {
   return (
-    <>
-      {displayedText}
-      {(!isComplete || isTyping) && <span className="animate-pulse">_</span>}
-    </>
+    <div className="relative w-full aspect-square max-w-[480px] mx-auto flex items-center justify-center">
+      {/* Background layer: glow & particles */}
+      <div className="absolute inset-0 bg-primary/15 blur-[100px] rounded-full" />
+      
+      {/* Floating particles */}
+      <div className="absolute top-1/4 left-1/4 size-2 rounded-full bg-primary/40 animate-[float_4s_ease-in-out_infinite_alternate]" />
+      <div className="absolute top-1/2 right-1/4 size-3 rounded-full bg-primary/20 animate-[float_6s_ease-in-out_infinite_alternate_reverse]" />
+      <div className="absolute bottom-1/4 left-1/3 size-1.5 rounded-full bg-primary/50 animate-[float_3s_ease-in-out_infinite_alternate]" />
+
+      {/* Floating Accent Icons */}
+      <div className="absolute top-[15%] right-[10%] bg-card p-3 rounded-xl border border-white/10 shadow-[0_15px_30px_rgba(0,0,0,0.5)] z-20 animate-[float_5s_ease-in-out_infinite_alternate]">
+        <Lock className="size-5 text-muted-foreground" />
+      </div>
+      <div className="absolute bottom-[20%] left-[5%] bg-card p-3 rounded-xl border border-white/10 shadow-[0_15px_30px_rgba(0,0,0,0.5)] z-20 animate-[float_7s_ease-in-out_infinite_alternate_reverse]">
+        <ScanEye className="size-6 text-primary" />
+      </div>
+      <div className="absolute top-[30%] left-[10%] bg-card p-2 rounded-lg border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] z-0 animate-[float_4s_ease-in-out_infinite_alternate]" style={{ animationDelay: '1s' }}>
+        <CheckCircle2 className="size-4 text-primary" />
+      </div>
+
+      {/* Mid Layer: Photo Card */}
+      <div className="relative w-64 h-80 bg-slate-900 border border-white/10 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] -rotate-[8deg] overflow-hidden flex flex-col z-10 transition-transform duration-700 hover:-rotate-6">
+        
+        {/* Photo Content Area */}
+        <div className="flex-1 bg-slate-800 m-3 mb-0 rounded-xl overflow-hidden relative flex flex-col items-center justify-end pt-8">
+          
+          {/* Abstract Silhouette */}
+          <div className="w-16 h-16 bg-slate-700 rounded-full mb-3 z-10" />
+          <div className="w-28 h-20 bg-slate-700 rounded-t-[40px] z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent z-10" />
+
+          {/* Scanning Effect */}
+          <div className="absolute left-0 right-0 h-0.5 bg-primary box-glow animate-[scan_3s_linear_infinite] z-20 shadow-[0_0_15px_rgba(16,185,129,1)]">
+            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-primary/30 to-transparent translate-y-[-1px]" />
+          </div>
+        </div>
+        
+        {/* Card Footer */}
+        <div className="h-16 px-5 flex flex-col justify-center gap-2">
+          <div className="h-2 w-20 bg-slate-800 rounded-full" />
+          <div className="h-1.5 w-12 bg-slate-800 rounded-full opacity-50" />
+        </div>
+
+        {/* Foreground Badge (Verification Shield) */}
+        <div className="absolute -bottom-4 -right-4 bg-[#0A0E17] p-1.5 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.4)] border border-primary/20 rotate-[8deg] z-30">
+          <div className="bg-primary/10 border border-primary/30 p-4 rounded-full flex items-center justify-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-primary/20 blur-md" />
+            <ShieldCheck className="size-8 text-primary relative z-10 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+          </div>
+        </div>
+
+      </div>
+    </div>
   );
 }
 
 function Landing() {
-  const [showSub, setShowSub] = useState(false);
-  
-  useEffect(() => {
-    const t = setTimeout(() => setShowSub(true), 1500);
-    return () => clearTimeout(t);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono">
-      <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur">
-        <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link to="/" className="flex items-center gap-2 text-primary">
-            <TerminalSquare className="size-5" />
-            <span className="text-lg font-bold tracking-tight">&gt; PRIVACLICK</span>
+    <div className="min-h-screen bg-background text-foreground relative">
+      <MatrixRain />
+      
+      <header className="fixed top-4 left-0 right-0 z-50 px-4">
+        <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/10 bg-background/60 px-6 py-3 backdrop-blur-xl shadow-2xl relative">
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
+              <ShieldCheck className="size-5" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">Privaclick</span>
           </Link>
-          <div className="flex items-center gap-4">
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/auth">[ LOGIN ]</Link>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground bg-white/5 px-6 py-2 rounded-full border border-white/5">
+            <a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
+            <a href="#features" className="hover:text-primary transition-colors">Features</a>
+            <Link to="/about" className="hover:text-primary transition-colors">About</Link>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex hover:text-white rounded-full">
+              <Link to="/auth">Sign In</Link>
             </Button>
-            <Button asChild size="sm">
-              <Link to="/auth">&gt; GET_STARTED</Link>
+            <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 box-glow shadow-primary/20 rounded-full px-6">
+              <Link to="/auth">Get Started</Link>
             </Button>
           </div>
         </nav>
       </header>
 
-      <main>
-        <section className="relative border-b border-border overflow-hidden">
-          <div className="matrix-rain" />
-          <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-12 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-24">
-            <div className="lg:pt-8">
-              <span className="inline-flex items-center gap-2 border border-primary bg-background px-3 py-1 text-xs font-bold text-primary">
-                &gt; STATUS: SECURE
-              </span>
-              <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl xl:text-5xl text-balance text-glow text-primary h-24 sm:h-32">
-                <TypewriterText text="> PROTECT_YOUR_PRIVACY.exe" speed={40} />
+      <main className="pt-24 md:pt-28 relative z-10">
+        {/* Hero Section */}
+        <section className="relative overflow-hidden pt-8 md:pt-12 pb-16">
+          <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16">
+            <div className="animate-fade-up">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-6 box-glow shadow-primary/10 backdrop-blur-md">
+                <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
+                New — AI Deepfake Detection <ArrowRight className="size-3 ml-1" />
+              </div>
+              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl xl:text-6xl text-balance">
+                Take Back Control of Your <span className="emerald-gradient-text emerald-glow">Photos</span> Online
               </h1>
-              <div className={`transition-opacity duration-1000 ${showSub ? 'opacity-100' : 'opacity-0'}`}>
-                <p className="mt-2 max-w-xl text-sm text-muted-foreground sm:text-base text-balance">
-                  Photos get copied, reposted and reused every day, often without the person in them
-                  ever knowing. Privaclick finds those copies and gives you a simple way to have them
-                  removed.
-                </p>
-                <div className="mt-8 flex flex-wrap gap-4">
-                  <Button asChild size="lg">
-                    <Link to="/auth">
-                      &gt; INITIALIZE_SCAN
-                    </Link>
-                  </Button>
-                  <Button asChild size="lg" variant="outline">
-                    <Link to="/resources">VIEW_MANUAL --help</Link>
-                  </Button>
-                </div>
-                <p className="mt-5 text-xs font-bold text-muted-foreground/80">
-                  // Free to start · No card needed · Delete your data anytime
-                </p>
-              </div>
-            </div>
-            
-            <div className={`transition-opacity duration-1000 delay-500 relative w-full max-w-md border border-primary bg-background shadow-xl lg:ml-auto ${showSub ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="border-b border-primary bg-primary/10 px-3 py-1 flex items-center text-[10px] text-primary">
-                <span>&gt;_ system_monitor.sh</span>
-              </div>
-              <div className="relative h-48 w-full sm:h-56 p-1 border-b border-primary/30">
-                <img
-                  src={heroImage}
-                  alt="Abstract face-matching wireframe"
-                  className="h-full w-full object-cover opacity-40 mix-blend-screen filter grayscale contrast-200 sepia hue-rotate-[80deg]"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
-              </div>
-              <div className="relative grid gap-0">
-                <div className="flex items-center gap-4 border-b border-primary/30 bg-background/80 p-4">
-                  <div className="text-primary">
-                    <Fingerprint className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-primary">&gt; SIGNATURE_REGISTERED</p>
-                    <p className="text-xs font-medium text-muted-foreground">3 reference photos active</p>
-                  </div>
-                </div>
-                <div className="border-b border-primary/30 bg-background/80 p-5">
-                  <div className="flex items-center justify-between font-bold mb-4">
-                    <span className="flex items-center gap-2 text-sm text-primary">
-                      <Eye className="size-4" /> &gt; SCANNING_PLATFORMS
-                    </span>
-                    <span className="text-[10px] uppercase text-primary animate-pulse">[LIVE]</span>
-                  </div>
-                  <div className="space-y-4">
-                    {[
-                      ["INSTAGRAM", 97],
-                      ["FACEBOOK", 93],
-                      ["PINTEREST", 88],
-                    ].map(([name, pct]) => (
-                      <div key={name as string}>
-                        <div className="mb-2 flex justify-between text-xs font-bold text-muted-foreground">
-                          <span>{name}</span>
-                          <span className="text-primary">{pct}%</span>
-                        </div>
-                        <div className="h-1 overflow-hidden border border-primary/20 bg-black">
-                          <div
-                            className="h-full bg-primary"
-                            style={{ width: `${pct as number}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 bg-background/80 p-4">
-                  <div className="text-destructive animate-pulse">
-                    <ShieldCheck className="size-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-destructive">&gt; 2_TAKEDOWNS_IN_PROGRESS</p>
-                    <p className="text-xs font-medium text-muted-foreground">Awaiting user authorization</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-6 py-20 border-b border-border">
-          <div className="flex flex-col items-center">
-            <h2 className="text-center text-2xl font-bold text-primary">&gt; EXECUTION_FLOW</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              // Three simple steps. You stay in charge at every one of them.
-            </p>
-            
-            <div className="mt-12 w-full max-w-3xl border border-primary bg-black p-6 font-mono text-sm sm:text-base">
-              <div className="flex border-b border-primary/30 pb-2 mb-6 text-xs text-primary/60">
-                <span>&gt;_ how_it_works.sh</span>
-              </div>
-              <div className="space-y-6">
-                {steps.map((s, i) => (
-                  <div key={s.title}>
-                    <div className="flex justify-between items-end mb-2">
-                      <span className="text-primary font-bold">[{i + 1}] {s.title}</span>
-                      <span className="hidden sm:inline-block border-b border-dotted border-primary/40 flex-grow mx-4 mb-1"></span>
-                      <span className="text-primary">[READY]</span>
-                    </div>
-                    <div className="text-muted-foreground pl-0 sm:pl-8 text-xs">{s.body}</div>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-6 pt-4 border-t border-primary/30 flex items-center text-primary">
-                <span>root@privaclick:~# </span><span className="animate-pulse ml-1">_</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-border bg-black/50">
-          <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-2">
-            <div>
-              <h2 className="text-2xl font-bold text-primary">&gt; SYSTEM_ARCHITECTURE</h2>
-              <p className="mt-4 text-sm text-muted-foreground">
-                // Built privacy-first. Protecting your photos should never mean handing over more of yourself. We keep the amount of information we hold as small as possible.
+              <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg text-balance">
+                Advanced AI detection paired with guided cybercrime complaint filing. We scan the web for unauthorized use of your images and help you take them down.
               </p>
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {[
-                  { icon: Lock, t: "E2E_ENCRYPTED", d: "Data encrypted in transit and at rest." },
-                  { icon: Fingerprint, t: "ZERO_ID_RETENTION", d: "One-time checks. We drop government IDs." },
-                  { icon: Eye, t: "MANUAL_AUTHORIZATION", d: "Nothing is reported without user signal." },
-                  { icon: ShieldCheck, t: "ONE_CLICK_PURGE", d: "Remove your photos and account instantly." },
-                ].map((b) => (
-                  <div key={b.t} className="border border-border bg-black p-4">
-                    <b.icon className="size-4 text-primary mb-2" />
-                    <h3 className="text-xs font-bold text-primary">{b.t}</h3>
-                    <p className="mt-1 text-[10px] text-muted-foreground">{b.d}</p>
-                  </div>
-                ))}
+              <div className="mt-10 flex flex-wrap items-center gap-4">
+                <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-semibold box-glow shadow-primary/25 rounded-full">
+                  <Link to="/auth">Get Started Free</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold border-border bg-card hover:bg-accent hover:text-white rounded-full backdrop-blur-sm">
+                  <a href="#how-it-works">See How It Works</a>
+                </Button>
               </div>
             </div>
             
-            <div className="border border-primary bg-black p-6">
-               <div className="border-b border-primary/30 pb-2 mb-6 text-xs text-primary/60">
-                <span>&gt;_ display_metrics</span>
-              </div>
-              <div className="grid gap-6 sm:grid-cols-2">
-                {[
-                  ["1.2M", "PHOTOS_MONITORED"],
-                  ["43k", "MATCHES_REVIEWED"],
-                  ["18k", "TAKEDOWNS_SUPPORTED"],
-                  ["4.8/5", "USER_RATING"],
-                ].map(([n, l]) => (
-                  <div key={l} className="text-center">
-                    <p className="text-2xl font-bold text-primary text-glow">{n}</p>
-                    <p className="mt-1 text-[10px] text-muted-foreground uppercase">{l}</p>
-                  </div>
-                ))}
-                <blockquote className="col-span-1 sm:col-span-2 mt-4 border border-dashed border-border bg-black p-4 text-xs text-muted-foreground">
-                  "I found out my photos were being used on a page I'd never heard of. Privaclick made
-                  the whole reporting part feel manageable instead of frightening."
-                  <footer className="mt-3 text-[10px] font-bold text-primary">
-                    &gt; USER: Meera K. [JOINED: 2025]
-                  </footer>
-                </blockquote>
-              </div>
+            <div className="lg:ml-auto w-full relative">
+              <Hero3DGraphic />
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <h2 className="text-2xl font-bold text-primary">&gt; INITIATE_PROTOCOL</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
-            // Set up takes about three minutes. You can remove everything just as quickly.
-          </p>
-          <Button asChild size="lg" className="mt-8">
-            <Link to="/auth">
-              &gt; GET_PROTECTED <ArrowRight className="ml-2 size-4" />
-            </Link>
-          </Button>
+        {/* Trust Strip */}
+        <section className="border-y border-border bg-card/50 py-10">
+          <div className="mx-auto max-w-6xl px-6">
+            <p className="text-center text-sm font-medium text-muted-foreground mb-8">
+              Trusted by students, creators, and privacy-conscious users
+            </p>
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale">
+              {["AI-Powered", "GDPR-Aware", "Encrypted", "Built for Privacy"].map((badge) => (
+                <div key={badge} className="flex items-center gap-2 font-bold text-lg text-slate-400">
+                  <CheckCircle2 className="size-5" />
+                  {badge}
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Grid */}
+        <section id="features" className="py-24 relative">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-up">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Everything you need to protect your image</h2>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-3">
+              {[
+                {
+                  icon: ScanEye,
+                  title: "AI Detection",
+                  desc: "We continuously scan the web for unauthorized use of your photos using advanced facial matching.",
+                },
+                {
+                  icon: FileText,
+                  title: "Guided Complaint Filing",
+                  desc: "Auto-generate and file a formal cybercrime complaint in minutes to expedite removals.",
+                },
+                {
+                  icon: Lock,
+                  title: "Full Control",
+                  desc: "Review every match, decide what happens, and delete your data from our system anytime.",
+                },
+              ].map((f, i) => (
+                <div key={i} className="group relative rounded-xl border border-border bg-card p-8 feature-card-hover">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                    <f.icon className="size-6" />
+                  </div>
+                  <h3 className="mb-3 text-xl font-semibold text-white">{f.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section id="how-it-works" className="border-t border-border bg-card/30 py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-up">
+              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">How It Works</h2>
+              <p className="mt-4 text-lg text-muted-foreground">From upload to takedown — simple, fast, and fully in your control.</p>
+            </div>
+            
+            <div className="grid gap-6 md:grid-cols-2">
+              {[
+                { title: "Register Your Photos", desc: "Upload reference images securely. We only extract face embeddings and drop the files." },
+                { title: "We Monitor the Web", desc: "Our AI continuously scans social platforms and websites for matches." },
+                { title: "Review Detected Matches", desc: "Get notified when we find a match and decide if it's authorized or not." },
+                { title: "File & Track Your Complaint", desc: "One-click generation of cybercrime complaints and takedown notices." },
+              ].map((step, i) => (
+                <div key={i} className="flex gap-6 rounded-xl border border-border bg-card p-6 items-start">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    {i + 1}
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
+                    <p className="text-sm text-muted-foreground">{step.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Capabilities Grid */}
+        <section className="py-24">
+          <div className="mx-auto max-w-6xl px-6">
+            <div className="mb-16 animate-fade-up">
+              <h2 className="text-3xl font-bold tracking-tight text-white">Comprehensive Protection, Built In</h2>
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[
+                { icon: Search, title: "Photo Monitoring", desc: "Global web scanning engine" },
+                { 
+                  icon: BrainCircuit, 
+                  title: "Deepfake Detection", 
+                  desc: "Identify AI-manipulated imagery",
+                  highlight: true 
+                },
+                { icon: FileArchive, title: "Evidence Reports", desc: "Generate court-ready PDFs" },
+                { icon: Database, title: "Secure Storage", desc: "End-to-end encrypted vaults" },
+                { icon: Activity, title: "Complaint Tracking", desc: "Live status updates on removals" },
+                { icon: Sliders, title: "Data Control", desc: "One-click complete data wipe" },
+              ].map((c, i) => (
+                <div key={i} className={`flex items-center gap-4 rounded-xl border p-5 ${c.highlight ? 'border-green-500/50 bg-green-500/10' : 'border-border bg-card'}`}>
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${c.highlight ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-secondary text-green-500'}`}>
+                    <c.icon className="size-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-white">{c.title}</h4>
+                    <p className="text-xs text-muted-foreground">{c.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="border-t border-border bg-primary/5 py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-topography opacity-50 mix-blend-overlay" />
+          <div className="relative mx-auto max-w-3xl px-6 text-center animate-fade-up">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-6">
+              Ready to secure your digital footprint?
+            </h2>
+            <p className="text-lg text-muted-foreground mb-10">
+              Join thousands of users who have taken back control of their photos online.
+            </p>
+            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-10 text-lg font-semibold box-glow shadow-primary/30">
+              <Link to="/auth">Start Your Free Scan</Link>
+            </Button>
+          </div>
         </section>
       </main>
 

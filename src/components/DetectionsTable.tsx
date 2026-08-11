@@ -84,7 +84,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
                 </TableCell>
                 <TableCell className="text-right">
                   <Button size="sm" onClick={() => setActive(d)}>
-                    > REVIEW
+                    &gt; REVIEW
                   </Button>
                 </TableCell>
               </TableRow>
@@ -97,11 +97,11 @@ export function DetectionsTable({ limit }: { limit?: number }) {
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
         <DialogContent className="border border-primary bg-black rounded-none p-0 max-w-2xl font-mono text-primary">
           <div className="border-b border-primary bg-primary/10 px-3 py-1 flex items-center text-[10px] text-primary">
-            <span>>_ review_match.sh</span>
+            <span>&gt;_ review_match.sh</span>
           </div>
           <div className="p-6">
             <DialogHeader className="mb-6">
-              <DialogTitle className="text-lg font-bold uppercase">> DOES_THIS_LOOK_LIKE_YOU?</DialogTitle>
+              <DialogTitle className="text-lg font-bold uppercase">&gt; DOES_THIS_LOOK_LIKE_YOU?</DialogTitle>
               <DialogDescription className="text-xs text-muted-foreground">
                 // Compare your registered photo with what we found. Only you decide what happens next.
               </DialogDescription>
@@ -117,7 +117,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
                     className="aspect-square w-full object-cover grayscale opacity-80"
                   />
                   <figcaption className="border-t border-border bg-primary/5 px-3 py-2 text-[10px] text-primary font-bold">
-                    > SOURCE_IMAGE
+                    &gt; SOURCE_IMAGE
                   </figcaption>
                 </figure>
                 <figure className="overflow-hidden border border-border bg-black">
@@ -129,7 +129,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
                   />
                   <figcaption className="space-y-1 border-t border-border bg-primary/5 px-3 py-2 text-[10px] text-primary">
                     <p className="font-bold">
-                      > TARGET: {active.platform.toUpperCase()} · CONFIDENCE: {active.confidence}% · DATE: {active.foundOn.toUpperCase()}
+                      &gt; TARGET: {active.platform.toUpperCase()} · CONFIDENCE: {active.confidence}% · DATE: {active.foundOn.toUpperCase()}
                     </p>
                     <p className="flex items-center gap-1 truncate opacity-70">
                       <ExternalLink className="size-3" /> {active.sourceUrl}
@@ -156,7 +156,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
                   toast.success("> MATCH_DISMISSED");
                 }}
               >
-                > DISMISS_MATCH
+                &gt; DISMISS_MATCH
               </Button>
               <Button
                 onClick={() => {
@@ -167,7 +167,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
                   navigate({ to: "/app/complaints/new", search: { detection: id } });
                 }}
               >
-                > INITIATE_REPORT
+                &gt; INITIATE_REPORT
               </Button>
             </DialogFooter>
           </div>

@@ -36,7 +36,7 @@ export function DetectionsTable({ limit }: { limit?: number }) {
       {rows.length === 0 ? (
         <div className="border border-border bg-black px-6 py-14 text-center font-mono text-primary">
           <ShieldCheck className="animate-shield-pulse mx-auto size-10 text-primary" />
-          <p className="mt-4 text-sm font-bold">> NO_MATCHES_FOUND</p>
+          <p className="mt-4 text-sm font-bold">&gt; NO_MATCHES_FOUND</p>
           <p className="mt-1 text-xs text-muted-foreground">
             // We're actively watching. You'll hear from us the moment something turns up.
           </p>

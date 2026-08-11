@@ -43,14 +43,14 @@ function AppLayout() {
               inactiveProps={{ className: "text-muted-foreground hover:bg-primary/20 hover:text-primary" }}
               className="group flex shrink-0 items-center gap-2.5 px-3 py-2 text-sm uppercase transition-colors"
             >
-              <span className="opacity-0 group-hover:opacity-100 group-[.active]:opacity-100">></span>
+              <span className="opacity-0 group-hover:opacity-100 group-[.active]:opacity-100">&gt;</span>
               {item.label}
             </Link>
           ))}
         </nav>
         <div className="mt-auto hidden space-y-3 px-5 py-4 lg:block">
           <div className="border border-border bg-black p-3 font-mono text-xs text-primary/80">
-            <div className="border-b border-border pb-1 mb-2">>_ session_info</div>
+            <div className="border-b border-border pb-1 mb-2">&gt;_ session_info</div>
             <p className="font-bold text-primary">USER: {user.name}</p>
             <p className="truncate opacity-70">ID: {user.email}</p>
             <p className="mt-2 opacity-70">
@@ -63,7 +63,7 @@ function AppLayout() {
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive hover:text-black uppercase font-bold transition-colors"
           >
             <LogOut className="size-4" />
-            > LOGOUT
+            &gt; LOGOUT
           </Link>
         </div>
       </aside>

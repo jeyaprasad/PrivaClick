@@ -37,7 +37,7 @@ function PhotosPage() {
 
       <Card className="border border-border bg-black rounded-none">
         <CardHeader className="border-b border-border/50 pb-4">
-          <CardTitle className="text-sm font-bold text-primary">> REGISTERED_PHOTOS [{photos.length}]</CardTitle>
+          <CardTitle className="text-sm font-bold text-primary">&gt; REGISTERED_PHOTOS [{photos.length}]</CardTitle>
         </CardHeader>
         <CardContent className="pt-6">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
@@ -73,7 +73,7 @@ function PhotosPage() {
 
       <Card className="border border-border bg-black rounded-none">
         <CardHeader className="border-b border-border/50 pb-4">
-          <CardTitle className="text-sm font-bold text-primary">> ADD_MORE_PHOTOS</CardTitle>
+          <CardTitle className="text-sm font-bold text-primary">&gt; ADD_MORE_PHOTOS</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 pt-6">
           <PhotoUpload
@@ -89,7 +89,7 @@ function PhotosPage() {
               toast.success("> PHOTOS_SAVED");
             }}
           >
-            > SAVE_PHOTOS
+            &gt; SAVE_PHOTOS
           </Button>
         </CardContent>
       </Card>

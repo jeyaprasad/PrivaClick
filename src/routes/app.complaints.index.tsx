@@ -30,14 +30,14 @@ function ComplaintsPage() {
     <div className="space-y-6 font-mono">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">> COMPLAINTS_REGISTRY</h1>
+          <h1 className="text-2xl font-bold text-primary">&gt; COMPLAINTS_REGISTRY</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             // Everything you've reported, and how far along it is.
           </p>
         </div>
         <Button asChild size="sm">
           <Link to="/app/detections">
-            > FILE_FROM_DETECTION
+            &gt; FILE_FROM_DETECTION
           </Link>
         </Button>
       </div>
@@ -48,7 +48,7 @@ function ComplaintsPage() {
             <CardContent className="space-y-5 pt-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="font-bold text-primary uppercase">> COMPLAINT_ID: {c.id}</p>
+                  <p className="font-bold text-primary uppercase">&gt; COMPLAINT_ID: {c.id}</p>
                   <p className="text-[10px] text-muted-foreground uppercase mt-1">
                     TARGET: {c.platform} · TIMESTAMP: {c.filedOn}
                   </p>
@@ -63,7 +63,7 @@ function ComplaintsPage() {
         {complaints.length === 0 && (
           <Card className="border border-border bg-black rounded-none">
             <CardContent className="py-12 text-center text-sm font-bold text-muted-foreground">
-              > NO_ACTIVE_COMPLAINTS
+              &gt; NO_ACTIVE_COMPLAINTS
             </CardContent>
           </Card>
         )}

@@ -43,7 +43,7 @@ function Dashboard() {
         </div>
         <Button asChild variant="outline" size="sm">
           <Link to="/app/photos">
-            > ADD_PHOTOS
+            &gt; ADD_PHOTOS
           </Link>
         </Button>
       </div>
@@ -83,7 +83,7 @@ function Dashboard() {
 
       <Card className="border border-border bg-black rounded-none">
         <CardHeader className="flex-row items-center justify-between border-b border-border/50 pb-4">
-          <CardTitle className="text-sm font-bold text-primary">> RECENT_DETECTIONS</CardTitle>
+          <CardTitle className="text-sm font-bold text-primary">&gt; RECENT_DETECTIONS</CardTitle>
           <Button asChild variant="ghost" size="sm">
             <Link to="/app/detections">VIEW_ALL</Link>
           </Button>

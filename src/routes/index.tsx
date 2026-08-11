@@ -107,7 +107,7 @@ function Landing() {
               <Link to="/auth">[ LOGIN ]</Link>
             </Button>
             <Button asChild size="sm">
-              <Link to="/auth">> GET_STARTED</Link>
+              <Link to="/auth">&gt; GET_STARTED</Link>
             </Button>
           </div>
         </nav>
@@ -119,7 +119,7 @@ function Landing() {
           <div className="relative z-10 mx-auto grid max-w-6xl items-start gap-12 px-6 py-12 lg:grid-cols-2 lg:gap-16 lg:py-24">
             <div className="lg:pt-8">
               <span className="inline-flex items-center gap-2 border border-primary bg-background px-3 py-1 text-xs font-bold text-primary">
-                > STATUS: SECURE
+                &gt; STATUS: SECURE
               </span>
               <h1 className="mt-6 text-3xl font-bold leading-tight sm:text-4xl xl:text-5xl text-balance text-glow text-primary h-24 sm:h-32">
                 <TypewriterText text="> PROTECT_YOUR_PRIVACY.exe" speed={40} />
@@ -133,7 +133,7 @@ function Landing() {
                 <div className="mt-8 flex flex-wrap gap-4">
                   <Button asChild size="lg">
                     <Link to="/auth">
-                      > INITIALIZE_SCAN
+                      &gt; INITIALIZE_SCAN
                     </Link>
                   </Button>
                   <Button asChild size="lg" variant="outline">
@@ -148,7 +148,7 @@ function Landing() {
             
             <div className={`transition-opacity duration-1000 delay-500 relative w-full max-w-md border border-primary bg-background shadow-xl lg:ml-auto ${showSub ? 'opacity-100' : 'opacity-0'}`}>
               <div className="border-b border-primary bg-primary/10 px-3 py-1 flex items-center text-[10px] text-primary">
-                <span>>_ system_monitor.sh</span>
+                <span>&gt;_ system_monitor.sh</span>
               </div>
               <div className="relative h-48 w-full sm:h-56 p-1 border-b border-primary/30">
                 <img
@@ -164,14 +164,14 @@ function Landing() {
                     <Fingerprint className="size-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-primary">> SIGNATURE_REGISTERED</p>
+                    <p className="text-sm font-bold text-primary">&gt; SIGNATURE_REGISTERED</p>
                     <p className="text-xs font-medium text-muted-foreground">3 reference photos active</p>
                   </div>
                 </div>
                 <div className="border-b border-primary/30 bg-background/80 p-5">
                   <div className="flex items-center justify-between font-bold mb-4">
                     <span className="flex items-center gap-2 text-sm text-primary">
-                      <Eye className="size-4" /> > SCANNING_PLATFORMS
+                      <Eye className="size-4" /> &gt; SCANNING_PLATFORMS
                     </span>
                     <span className="text-[10px] uppercase text-primary animate-pulse">[LIVE]</span>
                   </div>
@@ -201,7 +201,7 @@ function Landing() {
                     <ShieldCheck className="size-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-destructive">> 2_TAKEDOWNS_IN_PROGRESS</p>
+                    <p className="text-sm font-bold text-destructive">&gt; 2_TAKEDOWNS_IN_PROGRESS</p>
                     <p className="text-xs font-medium text-muted-foreground">Awaiting user authorization</p>
                   </div>
                 </div>
@@ -212,14 +212,14 @@ function Landing() {
 
         <section className="mx-auto max-w-6xl px-6 py-20 border-b border-border">
           <div className="flex flex-col items-center">
-            <h2 className="text-center text-2xl font-bold text-primary">> EXECUTION_FLOW</h2>
+            <h2 className="text-center text-2xl font-bold text-primary">&gt; EXECUTION_FLOW</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               // Three simple steps. You stay in charge at every one of them.
             </p>
             
             <div className="mt-12 w-full max-w-3xl border border-primary bg-black p-6 font-mono text-sm sm:text-base">
               <div className="flex border-b border-primary/30 pb-2 mb-6 text-xs text-primary/60">
-                <span>>_ how_it_works.sh</span>
+                <span>&gt;_ how_it_works.sh</span>
               </div>
               <div className="space-y-6">
                 {steps.map((s, i) => (
@@ -243,7 +243,7 @@ function Landing() {
         <section className="border-b border-border bg-black/50">
           <div className="mx-auto grid max-w-6xl gap-10 px-6 py-20 lg:grid-cols-2">
             <div>
-              <h2 className="text-2xl font-bold text-primary">> SYSTEM_ARCHITECTURE</h2>
+              <h2 className="text-2xl font-bold text-primary">&gt; SYSTEM_ARCHITECTURE</h2>
               <p className="mt-4 text-sm text-muted-foreground">
                 // Built privacy-first. Protecting your photos should never mean handing over more of yourself. We keep the amount of information we hold as small as possible.
               </p>
@@ -265,7 +265,7 @@ function Landing() {
             
             <div className="border border-primary bg-black p-6">
                <div className="border-b border-primary/30 pb-2 mb-6 text-xs text-primary/60">
-                <span>>_ display_metrics</span>
+                <span>&gt;_ display_metrics</span>
               </div>
               <div className="grid gap-6 sm:grid-cols-2">
                 {[
@@ -283,7 +283,7 @@ function Landing() {
                   "I found out my photos were being used on a page I'd never heard of. Privaclick made
                   the whole reporting part feel manageable instead of frightening."
                   <footer className="mt-3 text-[10px] font-bold text-primary">
-                    > USER: Meera K. [JOINED: 2025]
+                    &gt; USER: Meera K. [JOINED: 2025]
                   </footer>
                 </blockquote>
               </div>
@@ -292,13 +292,13 @@ function Landing() {
         </section>
 
         <section className="mx-auto max-w-4xl px-6 py-20 text-center">
-          <h2 className="text-2xl font-bold text-primary">> INITIATE_PROTOCOL</h2>
+          <h2 className="text-2xl font-bold text-primary">&gt; INITIATE_PROTOCOL</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm text-muted-foreground">
             // Set up takes about three minutes. You can remove everything just as quickly.
           </p>
           <Button asChild size="lg" className="mt-8">
             <Link to="/auth">
-              > GET_PROTECTED <ArrowRight className="ml-2 size-4" />
+              &gt; GET_PROTECTED <ArrowRight className="ml-2 size-4" />
             </Link>
           </Button>
         </section>

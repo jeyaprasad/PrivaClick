@@ -29,7 +29,7 @@ function AppLayout() {
     <div className="min-h-screen bg-background text-foreground font-mono lg:flex">
       <aside className="flex flex-col border-b border-border bg-black lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="flex items-center gap-2 px-5 py-6">
-          <span className="font-bold tracking-widest text-primary">> PRIVACLICK</span>
+          <span className="font-bold tracking-widest text-primary">&gt; PRIVACLICK</span>
         </div>
         <nav className="flex gap-1 overflow-x-auto px-3 pb-3 lg:flex-col lg:overflow-visible">
           {nav.map((item) => (

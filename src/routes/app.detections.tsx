@@ -20,7 +20,7 @@ function DetectionsPage() {
   return (
     <div className="space-y-6 font-mono">
       <div className="border-b border-border pb-4">
-        <h1 className="text-2xl font-bold text-primary">> DETECTIONS</h1>
+        <h1 className="text-2xl font-bold text-primary">&gt; DETECTIONS</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           // Each item is a possible match. Take a look and tell us whether it's really you.
         </p>

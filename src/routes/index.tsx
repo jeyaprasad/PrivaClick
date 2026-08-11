@@ -100,7 +100,7 @@ function Landing() {
         <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link to="/" className="flex items-center gap-2 text-primary">
             <TerminalSquare className="size-5" />
-            <span className="text-lg font-bold tracking-tight">> PRIVACLICK</span>
+            <span className="text-lg font-bold tracking-tight">&gt; PRIVACLICK</span>
           </Link>
           <div className="flex items-center gap-4">
             <Button asChild variant="ghost" size="sm">

@@ -36,7 +36,7 @@ function Dashboard() {
     <div className="space-y-8 font-mono">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">> HELLO, {user.name.split(" ")[0].toUpperCase()}</h1>
+          <h1 className="text-2xl font-bold text-primary">&gt; HELLO, {user.name.split(" ")[0].toUpperCase()}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             // Here's what's happening with your photos.
           </p>

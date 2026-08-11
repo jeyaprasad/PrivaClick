@@ -29,7 +29,7 @@ function PhotosPage() {
   return (
     <div className="space-y-6 font-mono">
       <div className="border-b border-border pb-4">
-        <h1 className="text-2xl font-bold text-primary">> MY_PHOTOS</h1>
+        <h1 className="text-2xl font-bold text-primary">&gt; MY_PHOTOS</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           // These are only used to find matches. You can remove any of them at any time.
         </p>

@@ -155,10 +155,10 @@ function Landing() {
             <p className="text-center text-sm font-medium text-muted-foreground mb-8">
               Trusted by students, creators, and privacy-conscious users
             </p>
-            <div className="flex flex-wrap justify-center gap-8 md:gap-16 opacity-60 grayscale">
+            <div className="flex flex-wrap justify-center gap-8 md:gap-16">
               {["AI-Powered", "GDPR-Aware", "Encrypted", "Built for Privacy"].map((badge) => (
                 <div key={badge} className="flex items-center gap-2 font-bold text-lg text-slate-400">
-                  <CheckCircle2 className="size-5" />
+                  <CheckCircle2 className="size-5 text-primary drop-shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
                   {badge}
                 </div>
               ))}
@@ -191,8 +191,8 @@ function Landing() {
                   desc: "Review every match, decide what happens, and delete your data from our system anytime.",
                 },
               ].map((f, i) => (
-                <div key={i} className="group relative rounded-xl border border-border bg-card p-8 feature-card-hover">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div key={i} className="group relative rounded-xl border border-green-500/50 bg-green-500/10 p-8 feature-card-hover">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]">
                     <f.icon className="size-6" />
                   </div>
                   <h3 className="mb-3 text-xl font-semibold text-white">{f.title}</h3>
@@ -218,8 +218,8 @@ function Landing() {
                 { title: "Review Detected Matches", desc: "Get notified when we find a match and decide if it's authorized or not." },
                 { title: "File & Track Your Complaint", desc: "One-click generation of cybercrime complaints and takedown notices." },
               ].map((step, i) => (
-                <div key={i} className="flex gap-6 rounded-xl border border-border bg-card p-6 items-start">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                <div key={i} className="flex gap-6 rounded-xl border border-green-500/50 bg-green-500/10 p-6 items-start feature-card-hover">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-[0_0_15px_rgba(34,197,94,0.5)]">
                     {i + 1}
                   </div>
                   <div>
@@ -245,16 +245,15 @@ function Landing() {
                 { 
                   icon: BrainCircuit, 
                   title: "Deepfake Detection", 
-                  desc: "Identify AI-manipulated imagery",
-                  highlight: true 
+                  desc: "Identify AI-manipulated imagery"
                 },
                 { icon: FileArchive, title: "Evidence Reports", desc: "Generate court-ready PDFs" },
                 { icon: Database, title: "Secure Storage", desc: "End-to-end encrypted vaults" },
                 { icon: Activity, title: "Complaint Tracking", desc: "Live status updates on removals" },
                 { icon: Sliders, title: "Data Control", desc: "One-click complete data wipe" },
               ].map((c, i) => (
-                <div key={i} className={`flex items-center gap-4 rounded-xl border p-5 ${c.highlight ? 'border-green-500/50 bg-green-500/10' : 'border-border bg-card'}`}>
-                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${c.highlight ? 'bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]' : 'bg-secondary text-green-500'}`}>
+                <div key={i} className="flex items-center gap-4 rounded-xl border border-green-500/50 bg-green-500/10 p-5 feature-card-hover">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]">
                     <c.icon className="size-5" />
                   </div>
                   <div>

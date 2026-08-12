@@ -92,11 +92,11 @@ function AuthPage() {
         <p className="text-xs text-muted-foreground">Trusted by people protecting 1.2M photos.</p>
       </div>
 
-      <div className="flex items-center justify-center px-6 py-14">
+      <div className="flex items-center justify-center px-6 py-8">
         <div className="w-full max-w-sm animate-fade-up">
           <Link
             to="/"
-            className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
+            className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary"
           >
             <ArrowLeft className="size-4" /> Back home
           </Link>
@@ -112,14 +112,22 @@ function AuthPage() {
                   : "Log in to see what's new on your account."}
               </p>
 
-              <Tabs value={mode} onValueChange={setMode} className="mt-6">
+              <Tabs value={mode} onValueChange={setMode} className="mt-4">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="signup">Sign up</TabsTrigger>
                   <TabsTrigger value="login">Log in</TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              <form onSubmit={submitCredentials} className="mt-6 space-y-4">
+              {/* Demo Credentials Box */}
+              <div className="mt-4 rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-sm font-mono text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                <p className="font-bold mb-1 flex items-center gap-2"><Lock className="size-4" /> [DEMO ACCESS]</p>
+                <p className="opacity-80">EMAIL: demo@privaclick.com</p>
+                <p className="opacity-80">PASS : password123</p>
+                {mode === "signup" && <p className="opacity-80 mt-2 pt-2 border-t border-green-500/20">ID_NUM: [ANY NUMBER]</p>}
+              </div>
+
+              <form onSubmit={submitCredentials} className="mt-4 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -176,6 +184,13 @@ function AuthPage() {
                   is a one-time check.
                 </p>
               </div>
+
+              {/* Demo OTP Box */}
+              <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-sm font-mono text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
+                <p className="font-bold mb-1 flex items-center gap-2"><KeyRound className="size-4" /> [DEMO ACCESS]</p>
+                <p className="opacity-80">CODE: 123456</p>
+              </div>
+
               <InputOTP maxLength={6} value={otp} onChange={setOtp}>
                 <InputOTPGroup>
                   {[0, 1, 2, 3, 4, 5].map((i) => (

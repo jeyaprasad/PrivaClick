@@ -34,8 +34,8 @@ export function StatusPill({
 }
 
 export function toneForStatus(status: string): Tone {
-  if (status === "New" || status === "Submitted") return "new";
-  if (status === "Reviewed" || status === "Under Review") return "reviewed";
+  if (status === "New" || status === "Submitted" || status === "Needs Review") return "new";
+  if (status === "Reviewed" || status === "Under Review" || status === "Confirmed Unauthorized") return "reviewed";
   if (status === "Complaint Filed" || status === "Action Taken") return "filed";
   return "dismissed";
 }

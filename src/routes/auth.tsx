@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, KeyRound, Lock, ShieldCheck } from "lucide-react";
+import { ArrowLeft, KeyRound, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { sendOtp, verifyOtp } from "../lib/supabase-fns";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -31,33 +32,60 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [idNumber, setIdNumber] = useState("");
   const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const masked =
     idNumber.length > 4 ? `XXXX XXXX ${idNumber.slice(-4)}` : idNumber ? "XXXX XXXX ····" : "";
 
-  const submitCredentials = (e: React.FormEvent) => {
+  const submitCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || password.length < 6) {
       toast.error("Please enter your email and a password of at least 6 characters.");
       return;
     }
     if (mode === "login") {
+      localStorage.setItem("privaclick_email", email);
       toast.success("Welcome back.");
       navigate({ to: "/app" });
       return;
     }
-    setStage("otp");
-    toast.success("We've sent a 6-digit code to your registered mobile number.");
+
+    setLoading(true);
+    try {
+      await sendOtp({ data: { email } });
+      setStage("otp");
+      toast.success(`> OTP_SENT: A 6-digit code has been sent to ${email}`);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`> ERROR: FAILED_TO_SEND_OTP. Please check your credentials.`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const submitOtp = (e: React.FormEvent) => {
+  const submitOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (otp.length !== 6) {
       toast.error("Enter the 6-digit code to continue.");
       return;
     }
-    toast.success("Verified. Your ID number was not saved.");
-    navigate({ to: "/onboarding" });
+
+    setLoading(true);
+    try {
+      const res = await verifyOtp({ data: { email, code: otp } });
+      if (res.success) {
+        localStorage.setItem("privaclick_email", email);
+        toast.success("> VERIFIED: ACCOUNT_ACTIVATED");
+        navigate({ to: "/onboarding" });
+      } else {
+        toast.error(`> ERROR: ${res.error || "VERIFICATION_FAILED"}`);
+      }
+    } catch (err: any) {
+      console.error(err);
+      toast.error(`> ERROR: VERIFICATION_FAILED. ${err.message || ""}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -114,20 +142,12 @@ function AuthPage() {
 
               <Tabs value={mode} onValueChange={setMode} className="mt-4">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="signup">Sign up</TabsTrigger>
-                  <TabsTrigger value="login">Log in</TabsTrigger>
+                  <TabsTrigger value="signup" disabled={loading}>Sign up</TabsTrigger>
+                  <TabsTrigger value="login" disabled={loading}>Log in</TabsTrigger>
                 </TabsList>
               </Tabs>
 
-              {/* Demo Credentials Box */}
-              <div className="mt-4 rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-sm font-mono text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                <p className="font-bold mb-1 flex items-center gap-2"><Lock className="size-4" /> [DEMO ACCESS]</p>
-                <p className="opacity-80">EMAIL: demo@privaclick.com</p>
-                <p className="opacity-80">PASS : password123</p>
-                {mode === "signup" && <p className="opacity-80 mt-2 pt-2 border-t border-green-500/20">ID_NUM: [ANY NUMBER]</p>}
-              </div>
-
-              <form onSubmit={submitCredentials} className="mt-4 space-y-4">
+              <form onSubmit={submitCredentials} className="mt-6 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
@@ -137,6 +157,8 @@ function AuthPage() {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
                     maxLength={255}
+                    disabled={loading}
+                    required
                   />
                 </div>
                 <div className="space-y-2">
@@ -148,6 +170,8 @@ function AuthPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="At least 6 characters"
                     maxLength={72}
+                    disabled={loading}
+                    required
                   />
                 </div>
                 {mode === "signup" && (
@@ -159,6 +183,7 @@ function AuthPage() {
                       value={idNumber}
                       onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
                       placeholder="Used once, never saved"
+                      disabled={loading}
                     />
                     <p className="text-xs text-muted-foreground">
                       {masked
@@ -167,7 +192,8 @@ function AuthPage() {
                     </p>
                   </div>
                 )}
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full flex items-center justify-center gap-2" disabled={loading}>
+                  {loading && <Loader2 className="size-4 animate-spin" />}
                   {mode === "signup" ? "Continue to verification" : "Log in"}
                 </Button>
               </form>
@@ -180,26 +206,23 @@ function AuthPage() {
               <div>
                 <h1 className="text-2xl font-semibold">Enter your code</h1>
                 <p className="mt-2 text-sm text-muted-foreground">
-                  We sent a 6-digit code to the mobile number linked to {masked || "your ID"}. This
-                  is a one-time check.
+                  We sent a 6-digit verification code to the email address **{email}**. This is a one-time check.
                 </p>
               </div>
 
-              {/* Demo OTP Box */}
-              <div className="rounded-lg border border-green-500/50 bg-green-500/10 p-4 text-sm font-mono text-green-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                <p className="font-bold mb-1 flex items-center gap-2"><KeyRound className="size-4" /> [DEMO ACCESS]</p>
-                <p className="opacity-80">CODE: 123456</p>
+              <div className="flex justify-center">
+                <InputOTP maxLength={6} value={otp} onChange={setOtp} disabled={loading}>
+                  <InputOTPGroup>
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <InputOTPSlot key={i} index={i} />
+                    ))}
+                  </InputOTPGroup>
+                </InputOTP>
               </div>
-
-              <InputOTP maxLength={6} value={otp} onChange={setOtp}>
-                <InputOTPGroup>
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <InputOTPSlot key={i} index={i} />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
+              
               <div className="space-y-2">
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full flex items-center justify-center gap-2" disabled={loading}>
+                  {loading && <Loader2 className="size-4 animate-spin" />}
                   Verify and continue
                 </Button>
                 <Button
@@ -207,6 +230,7 @@ function AuthPage() {
                   variant="ghost"
                   className="w-full"
                   onClick={() => setStage("credentials")}
+                  disabled={loading}
                 >
                   Go back
                 </Button>

@@ -211,12 +211,11 @@ function Landing() {
               <p className="mt-4 text-lg text-muted-foreground">From upload to takedown — simple, fast, and fully in your control.</p>
             </div>
             
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-3">
               {[
-                { title: "Register Your Photos", desc: "Upload reference images securely. We only extract face embeddings and drop the files." },
-                { title: "We Monitor the Web", desc: "Our AI continuously scans social platforms and websites for matches." },
-                { title: "Review Detected Matches", desc: "Get notified when we find a match and decide if it's authorized or not." },
-                { title: "File & Track Your Complaint", desc: "One-click generation of cybercrime complaints and takedown notices." },
+                { title: "Register Your Photos", desc: "Upload your photos once. We scan the web to detect unauthorized use." },
+                { title: "Get Notified", desc: "Our AI flags a match and shows you where it was found." },
+                { title: "Generate & Submit Complaint", desc: "We auto-fill a cybercrime complaint — you review and submit." },
               ].map((step, i) => (
                 <div key={i} className="flex gap-6 rounded-xl border border-green-500/50 bg-green-500/10 p-6 items-start feature-card-hover">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-[0_0_15px_rgba(34,197,94,0.5)]">

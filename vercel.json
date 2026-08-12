@@ -1,0 +1,11 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron-scan",
+      "schedule": "0 0 * * *",
+      "headers": {
+        "Authorization": "Bearer default_secret"
+      }
+    }
+  ]
+}

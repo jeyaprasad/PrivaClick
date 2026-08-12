@@ -104,8 +104,10 @@ function SettingsPage() {
           <SwitchRow
             id="n-sms"
             label="Text me for high-confidence matches"
-            checked={notifications.sms}
-            onChange={(v) => setNotification("sms", v)}
+            checked={false}
+            onChange={() => {}}
+            disabled={true}
+            badge="Coming Soon"
           />
           <SwitchRow
             id="n-weekly"
@@ -185,18 +187,29 @@ function SwitchRow({
   label,
   checked,
   onChange,
+  disabled = false,
+  badge,
 }: {
   id: string;
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
+  badge?: string;
 }) {
   return (
-    <div className="flex items-center justify-between rounded-lg border px-4 py-3">
-      <Label htmlFor={id} className="cursor-pointer text-sm font-medium">
-        {label}
-      </Label>
-      <Switch id={id} checked={checked} onCheckedChange={onChange} />
+    <div className={`flex items-center justify-between rounded-lg border px-4 py-3 ${disabled ? "opacity-60" : ""}`}>
+      <div className="flex items-center gap-2">
+        <Label htmlFor={id} className={`text-sm font-medium ${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}>
+          {label}
+        </Label>
+        {badge && (
+          <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary border border-primary/30">
+            {badge}
+          </span>
+        )}
+      </div>
+      <Switch id={id} checked={checked} onCheckedChange={onChange} disabled={disabled} />
     </div>
   );
 }

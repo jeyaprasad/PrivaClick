@@ -60,6 +60,9 @@ function AppLayout() {
           </div>
           <Link
             to="/"
+            onClick={() => {
+              localStorage.removeItem("privaclick_email");
+            }}
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive hover:text-black uppercase font-bold transition-colors"
           >
             <LogOut className="size-4" />

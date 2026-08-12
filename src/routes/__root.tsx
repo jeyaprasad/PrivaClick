@@ -126,16 +126,20 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { TooltipProvider } from "../components/ui/tooltip";
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PrivaclickProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
-        <Toaster />
-      </PrivaclickProvider>
+      <TooltipProvider>
+        <PrivaclickProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+          <Toaster />
+        </PrivaclickProvider>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }

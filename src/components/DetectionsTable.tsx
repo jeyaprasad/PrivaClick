@@ -23,12 +23,17 @@ import { StatusPill, toneForStatus } from "@/components/StatusPill";
 import { usePrivaclick } from "@/lib/store";
 import type { Detection } from "@/lib/mock-data";
 
-export function DetectionsTable({ limit }: { limit?: number }) {
+export function DetectionsTable({ limit, statusFilter }: { limit?: number; statusFilter?: string }) {
   const navigate = useNavigate();
-  const { detections, photos, setDetectionStatus } = usePrivaclick();
+  const { detections, photos, setDetectionStatus, dismissDetectionAndSaveSafeUrl } = usePrivaclick();
   const [active, setActive] = useState<Detection | null>(null);
 
-  const rows = limit ? detections.slice(0, limit) : detections;
+  // Filter detections by status if requested
+  const filtered = statusFilter 
+    ? detections.filter((d) => d.status === statusFilter)
+    : detections;
+
+  const rows = limit ? filtered.slice(0, limit) : filtered;
   const original = active ? photos.find((p) => p.id === active.photoId) : undefined;
 
   return (
@@ -146,28 +151,48 @@ export function DetectionsTable({ limit }: { limit?: number }) {
               </div>
             )}
 
-            <DialogFooter className="gap-2 sm:justify-between mt-6">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  if (!active) return;
-                  setDetectionStatus(active.id, "Dismissed");
-                  setActive(null);
-                  toast.success("> MATCH_DISMISSED");
-                }}
-              >
-                &gt; DISMISS_MATCH
-              </Button>
-              <Button
-                onClick={() => {
-                  if (!active) return;
-                  const id = active.id;
-                  setDetectionStatus(id, "Reviewed");
-                  setActive(null);
-                  navigate({ to: "/app/complaints/new", search: { detection: id } });
-                }}
-              >
-                &gt; INITIATE_REPORT
+            {/* AI Confirmation Steps Prompt */}
+            {active && (
+              <div className="mt-6 border border-primary/30 bg-primary/5 p-4 rounded-none space-y-3">
+                <p className="text-xs font-bold text-primary uppercase">&gt; SECURITY_CHECK: IS_THIS_YOU_AND_DID_YOU_AUTHORIZE_THIS_USE?</p>
+                <p className="text-[11px] text-muted-foreground">
+                  Confirming this is you will dismiss the match alert and whitelist this URL so it won't be flagged in future scans.
+                </p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="text-[10px] h-8 bg-primary/20 hover:bg-primary/30 border border-primary text-primary"
+                    onClick={async () => {
+                      if (!active) return;
+                      await dismissDetectionAndSaveSafeUrl(active.id, active.sourceUrl);
+                      setActive(null);
+                      toast.success("> MATCH_DISMISSED: URL_WHITELISTED");
+                    }}
+                  >
+                    Yes, this is fine
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    className="text-[10px] h-8"
+                    onClick={async () => {
+                      if (!active) return;
+                      const id = active.id;
+                      await setDetectionStatus(id, "Confirmed Unauthorized");
+                      setActive(null);
+                      navigate({ to: "/app/complaints/new", search: { detection: id } });
+                      toast.success("> MATCH_CONFIRMED_UNAUTHORIZED: INITIATING_TAKEDOWN");
+                    }}
+                  >
+                    No, I didn't authorize this
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            <DialogFooter className="mt-6">
+              <Button variant="ghost" onClick={() => setActive(null)}>
+                &gt; CLOSE
               </Button>
             </DialogFooter>
           </div>

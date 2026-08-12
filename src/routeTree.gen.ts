@@ -17,6 +17,7 @@ import { Route as ContactRouteImport } from './routes/contact'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as ApiCronScanRouteImport } from './routes/api.cron-scan'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppComplaintsRouteImport } from './routes/app.complaints'
 import { Route as AppDetectionsRouteImport } from './routes/app.detections'
@@ -65,6 +66,11 @@ const ResourcesRoute = ResourcesRouteImport.update({
   path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiCronScanRoute = ApiCronScanRouteImport.update({
+  id: '/api/cron-scan',
+  path: '/api/cron-scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/api/cron-scan': typeof ApiCronScanRoute
   '/app/complaints': typeof AppComplaintsRouteWithChildren
   '/app/detections': typeof AppDetectionsRoute
   '/app/photos': typeof AppPhotosRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/api/cron-scan': typeof ApiCronScanRoute
   '/app/detections': typeof AppDetectionsRoute
   '/app/photos': typeof AppPhotosRoute
   '/app/settings': typeof AppSettingsRoute
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/onboarding': typeof OnboardingRoute
   '/privacy': typeof PrivacyRoute
   '/resources': typeof ResourcesRoute
+  '/api/cron-scan': typeof ApiCronScanRoute
   '/app/complaints': typeof AppComplaintsRouteWithChildren
   '/app/detections': typeof AppDetectionsRoute
   '/app/photos': typeof AppPhotosRoute
@@ -162,6 +171,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/resources'
+    | '/api/cron-scan'
     | '/app/complaints'
     | '/app/detections'
     | '/app/photos'
@@ -178,6 +188,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/resources'
+    | '/api/cron-scan'
     | '/app/detections'
     | '/app/photos'
     | '/app/settings'
@@ -194,6 +205,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/privacy'
     | '/resources'
+    | '/api/cron-scan'
     | '/app/complaints'
     | '/app/detections'
     | '/app/photos'
@@ -212,6 +224,7 @@ export interface RootRouteChildren {
   OnboardingRoute: typeof OnboardingRoute
   PrivacyRoute: typeof PrivacyRoute
   ResourcesRoute: typeof ResourcesRoute
+  ApiCronScanRoute: typeof ApiCronScanRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/resources'
       fullPath: '/resources'
       preLoaderRoute: typeof ResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/cron-scan': {
+      id: '/api/cron-scan'
+      path: '/api/cron-scan'
+      fullPath: '/api/cron-scan'
+      preLoaderRoute: typeof ApiCronScanRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/app/': {
@@ -365,6 +385,7 @@ const rootRouteChildren: RootRouteChildren = {
   OnboardingRoute: OnboardingRoute,
   PrivacyRoute: PrivacyRoute,
   ResourcesRoute: ResourcesRoute,
+  ApiCronScanRoute: ApiCronScanRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -387,15 +387,79 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
 
         clearTimeout(timeoutId);
 
+        console.log(`[Google Vision API] HTTP Status Code: ${response.status}`);
+
         if (response.ok) {
           const resData = await response.json();
-          const webDetection = resData.responses?.[0]?.webDetection;
-          webDetectionResults = webDetection?.pagesWithMatchingImages || [];
+          console.log("[Google Vision API] Full Raw JSON Response:", JSON.stringify(resData, null, 2));
+
+          const responseObj = resData.responses?.[0] || {};
+          if (responseObj.error) {
+            console.error("[Google Vision API] API Error Field:", JSON.stringify(responseObj.error, null, 2));
+          }
+
+          const webDetection = responseObj.webDetection;
+          
+          // Log specific webDetection lists for debugging matching
+          console.log("[Google Vision API] pagesWithMatchingImages count:", webDetection?.pagesWithMatchingImages?.length || 0);
+          console.log("[Google Vision API] partialMatchingImages count:", webDetection?.partialMatchingImages?.length || 0);
+          console.log("[Google Vision API] visuallySimilarImages count:", webDetection?.visuallySimilarImages?.length || 0);
+          console.log("[Google Vision API] fullMatchingImages count:", webDetection?.fullMatchingImages?.length || 0);
+
+          const seenUrls = new Set<string>();
+
+          if (webDetection) {
+            // 1. Pages with matching images (exact)
+            if (webDetection.pagesWithMatchingImages) {
+              for (const item of webDetection.pagesWithMatchingImages) {
+                if (item.url && !seenUrls.has(item.url)) {
+                  seenUrls.add(item.url);
+                  webDetectionResults.push({
+                    url: item.url,
+                    pageTitle: item.pageTitle || "Matching Webpage",
+                    matchType: "exact"
+                  });
+                }
+              }
+            }
+
+            // 2. Partial matching images (partial)
+            if (webDetection.partialMatchingImages) {
+              for (const item of webDetection.partialMatchingImages) {
+                if (item.url && !seenUrls.has(item.url)) {
+                  seenUrls.add(item.url);
+                  webDetectionResults.push({
+                    url: item.url,
+                    pageTitle: "Partial Image Match",
+                    matchType: "partial"
+                  });
+                }
+              }
+            }
+
+            // 3. Visually similar images (similar)
+            if (webDetection.visuallySimilarImages) {
+              for (const item of webDetection.visuallySimilarImages) {
+                if (item.url && !seenUrls.has(item.url)) {
+                  seenUrls.add(item.url);
+                  webDetectionResults.push({
+                    url: item.url,
+                    pageTitle: "Visually Similar Image",
+                    matchType: "similar"
+                  });
+                }
+              }
+            }
+          }
+
           visionApiSuccess = true;
-          console.log(`Vision API completed successfully. Found ${webDetectionResults.length} matches.`);
+          console.log(`[Google Vision API] Completed successfully. Found ${webDetectionResults.length} total unique matches across all categories.`);
+        } else {
+          const errText = await response.text();
+          console.error(`[Google Vision API] Request failed. Response body: ${errText}`);
         }
       } catch (err: any) {
-        console.warn("Error calling Google Vision API or timeout reached:", err.message || err);
+        console.warn("[Google Vision API] Call failed or timed out:", err.message || err);
       }
     }
 
@@ -412,6 +476,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
           webDetectionResults = cached.map((c) => ({
             url: c.source_url,
             pageTitle: `${c.platform} matching post`,
+            matchType: (c.match_type as any) || "exact"
           }));
         } else {
           throw new Error(cacheError?.message || "No pre-cached demo matches in table");
@@ -419,20 +484,20 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       } catch (err) {
         console.warn("Failed to load cached matches from table, using local memory fallback:", err);
         // Memory fallback for demo reliability
-        if (photoId === "p4" || (photo.storage_url && photo.storage_url.includes("Ada_Lovelace_portrait"))) {
+        if (photoId === "p4" || (photo.storage_url && photo.storage_url.includes("photo-1500648767791-00dcc994a43e"))) {
           webDetectionResults = [
-            { url: "https://wikipedia.org/wiki/Ada_Lovelace", pageTitle: "Ada Lovelace - Wikipedia" },
-            { url: "https://britannica.com/biography/Ada-Lovelace", pageTitle: "Ada Lovelace | Biography & Facts | Britannica" },
-            { url: "https://computerhistory.org/profile/ada-lovelace/", pageTitle: "Ada Lovelace | Computer History Museum" },
-            { url: "https://instagram.com/p/ada_lovelace_tribute/", pageTitle: "Ada Lovelace Tribute Post" },
-            { url: "https://pinterest.com/pin/ada_lovelace_historical_prints/", pageTitle: "Ada Lovelace Historical Prints" }
+            { url: "https://instagram.com/p/stolen_portrait_post/", pageTitle: "Instagram Profile Post", matchType: "exact" },
+            { url: "https://pinterest.com/pin/unauthorized_profile_share/", pageTitle: "Pinterest Shared pin", matchType: "partial" },
+            { url: "https://facebook.com/groups/identity_theft_forum/posts/99", pageTitle: "Facebook Forum Post", matchType: "similar" },
+            { url: "https://x.com/fake_account_holder", pageTitle: "X (Twitter) Fake Profile", matchType: "exact" },
+            { url: "https://someblog.com/identity-theft-case-study", pageTitle: "Case Study Blog Page", matchType: "similar" }
           ];
         } else {
           webDetectionResults = [
-            { url: "https://instagram.com/p/mock_unauthorized_post1/", pageTitle: "Instagram Post" },
-            { url: "https://pinterest.com/pin/mock_unauthorized_pin2/", pageTitle: "Pinterest Pin" },
-            { url: "https://facebook.com/groups/unauthorized_group/posts/3", pageTitle: "Facebook Share" },
-            { url: "https://someblog.com/photography/ananya-sharma-stolen", pageTitle: "Photography Blog" }
+            { url: "https://instagram.com/p/mock_unauthorized_post1/", pageTitle: "Instagram Post", matchType: "exact" },
+            { url: "https://pinterest.com/pin/mock_unauthorized_pin2/", pageTitle: "Pinterest Pin", matchType: "partial" },
+            { url: "https://facebook.com/groups/unauthorized_group/posts/3", pageTitle: "Facebook Share", matchType: "similar" },
+            { url: "https://someblog.com/photography/ananya-sharma-stolen", pageTitle: "Photography Blog", matchType: "similar" }
           ];
         }
       }
@@ -528,6 +593,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
         confidence: confidence,
         found_on: todayStr,
         status: "Needs Review",
+        match_type: result.matchType
       };
 
       try {
@@ -545,6 +611,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
         confidence: confidence,
         foundOn: todayStr,
         status: "Needs Review",
+        matchType: result.matchType
       });
     }
 

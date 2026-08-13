@@ -22,6 +22,7 @@ import {
   updateComplaintRefServer,
   dismissDetectionAndSaveSafeUrlServer,
 } from "./supabase-fns";
+import { toast } from "sonner";
 
 type Prefs = Record<Platform, boolean>;
 
@@ -43,6 +44,8 @@ type Store = {
   scanPhotoForMatches: (photoId: string) => Promise<Detection[]>;
   updateComplaintRef: (id: string, referenceId: string) => Promise<void>;
   dismissDetectionAndSaveSafeUrl: (id: string, url: string) => Promise<void>;
+  loadUserData: (email: string) => Promise<void>;
+  triggerJuryDemo: () => Promise<void>;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -63,6 +66,20 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
   });
   const [notifications, setNotifications] = useState({ email: true, sms: false, weekly: true });
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+
+  const loadUserData = useCallback(async (email: string) => {
+    try {
+      const data = await fetchStoreData({ data: { email } });
+      if (data.user) setUser(data.user);
+      if (data.photos) setPhotos(data.photos);
+      if (data.detections) setDetections(data.detections);
+      if (data.complaints) setComplaints(data.complaints);
+      if (data.notifications) setNotifications(data.notifications);
+      if (data.lastScanned) setLastScanned(data.lastScanned);
+    } catch (err) {
+      console.error("Failed to load store data from Supabase:", err);
+    }
+  }, []);
 
   // Fetch initial data from Supabase, scoped to logged-in user if available
   useEffect(() => {
@@ -86,6 +103,80 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       active = false;
     };
   }, []);
+
+  const triggerJuryDemo = useCallback(async () => {
+    const targetPhotoId = "p4";
+    const hasPhoto = photos.some((p) => p.id === targetPhotoId);
+    
+    if (!hasPhoto) {
+      const targetPhoto = {
+        id: targetPhotoId,
+        name: "My Profile Portrait",
+        src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+        addedOn: today(),
+      };
+      setPhotos((prev) => [targetPhoto, ...prev]);
+    }
+
+    const mockMatches = [
+      {
+        id: `d-demo-1-${Date.now()}`,
+        photoId: targetPhotoId,
+        src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+        platform: "Instagram" as Platform,
+        sourceUrl: "https://instagram.com/p/stolen_portrait_post/",
+        confidence: 96,
+        foundOn: today(),
+        status: "Needs Review" as const,
+      },
+      {
+        id: `d-demo-2-${Date.now()}`,
+        photoId: targetPhotoId,
+        src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+        platform: "Pinterest" as Platform,
+        sourceUrl: "https://pinterest.com/pin/unauthorized_profile_share/",
+        confidence: 89,
+        foundOn: today(),
+        status: "Needs Review" as const,
+      },
+      {
+        id: `d-demo-3-${Date.now()}`,
+        photoId: targetPhotoId,
+        src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+        platform: "Facebook" as Platform,
+        sourceUrl: "https://facebook.com/groups/identity_theft_forum/posts/99",
+        confidence: 84,
+        foundOn: today(),
+        status: "Needs Review" as const,
+      },
+      {
+        id: `d-demo-4-${Date.now()}`,
+        photoId: targetPhotoId,
+        src: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80",
+        platform: "X (Twitter)" as Platform,
+        sourceUrl: "https://x.com/fake_account_holder",
+        confidence: 78,
+        foundOn: today(),
+        status: "Needs Review" as const,
+      },
+    ];
+
+    setDetections((prev) => {
+      const filtered = prev.filter((d) => !d.id.startsWith("d-demo-"));
+      return [...mockMatches, ...filtered];
+    });
+
+    setLastScanned(new Date().toISOString());
+    toast.success("> DEMO_ACTIVATED: 4 UNAUTHORIZED WEB MATCHES DETECTED!");
+
+    try {
+      const audio = new Audio("https://assets.mixkit.co/active_storage/sfx/2869/2869-84.wav");
+      audio.volume = 0.4;
+      await audio.play();
+    } catch (e) {
+      // catch potential autoplay blocks
+    }
+  }, [photos]);
 
   const addPhotos = useCallback((files: { name: string; src: string }[]) => {
     const newPhotos = files.map((f, i) => ({
@@ -266,6 +357,8 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       scanPhotoForMatches,
       updateComplaintRef,
       dismissDetectionAndSaveSafeUrl,
+      loadUserData,
+      triggerJuryDemo,
     }),
     [
       user,
@@ -285,6 +378,8 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       scanPhotoForMatches,
       updateComplaintRef,
       dismissDetectionAndSaveSafeUrl,
+      loadUserData,
+      triggerJuryDemo,
     ],
   );
 

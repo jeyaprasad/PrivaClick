@@ -125,4 +125,6 @@ VALUES
 (5, 'p4', 'Pinterest', 'https://www.pinterest.com/pin/ada_lovelace_historical_prints/', 85, '12 Aug 2026')
 ON CONFLICT (id) DO NOTHING;
 
+ALTER TABLE detections ADD COLUMN IF NOT EXISTS match_type TEXT;
+
 

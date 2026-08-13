@@ -24,8 +24,9 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Dashboard() {
-  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned } = usePrivaclick();
+  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned, triggerJuryDemo } = usePrivaclick();
   const [scanning, setScanning] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
 
   const matches = detections.filter((d) => d.status !== "Dismissed").length;
   const activeComplaints = complaints.filter((c) => c.status !== "Action Taken").length;
@@ -97,6 +98,25 @@ function Dashboard() {
           <Button
             variant="outline"
             size="sm"
+            onClick={async () => {
+              setDemoLoading(true);
+              await triggerJuryDemo();
+              setDemoLoading(false);
+            }}
+            disabled={demoLoading}
+            className="border-dashed border-primary hover:border-solid hover:bg-primary hover:text-black flex items-center gap-2"
+          >
+            {demoLoading ? (
+              <>
+                <Loader2 className="size-3 animate-spin text-primary" /> LOADING...
+              </>
+            ) : (
+              "> LAUNCH_JURY_DEMO"
+            )}
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleScanAll}
             disabled={scanning || photos.length === 0}
             className="flex items-center gap-2"
@@ -150,9 +170,70 @@ function Dashboard() {
         </Card>
       </div>
 
+      <div className="grid gap-6 md:grid-cols-3">
+        {/* Primary Action Block: Report Stolen Photo */}
+        <div className="md:col-span-2 flex flex-col justify-between border border-primary bg-black p-6 font-mono relative overflow-hidden">
+          <div className="absolute -right-6 -bottom-6 size-24 bg-primary/10 rounded-full blur-2xl" />
+          
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+              <h2 className="text-sm font-bold text-primary tracking-wider uppercase">&gt; PRIMARY_ACTION: REPORT_UNAUTHORIZED_USE</h2>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground leading-relaxed max-w-xl">
+              Found your photo being used without permission or spotted an impersonation profile? 
+              Paste the source URL and upload screenshots to generate platform-compliant takedown requests 
+              and lock in secure cryptographic SHA-256 evidence.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Button size="sm" asChild className="bg-primary text-black hover:bg-primary/80 font-bold rounded-none">
+              <Link to="/app/complaints/new">
+                &gt; START_MANUAL_REPORT
+              </Link>
+            </Button>
+            <Button size="sm" variant="outline" asChild className="rounded-none border-primary text-primary hover:bg-primary hover:text-black">
+              <Link to="/app/complaints">
+                &gt; TRACK_FILED_REPORTS
+              </Link>
+            </Button>
+          </div>
+        </div>
+
+        {/* Secondary Action Block: AI scanner */}
+        <div className="flex flex-col justify-between border border-border bg-black p-6 font-mono">
+          <div>
+            <h2 className="text-sm font-bold text-muted-foreground tracking-wider uppercase">&gt; SECONDARY: AI_WEB_SCANNER</h2>
+            <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+              Run automated reverse-image scans across indexable public sites to detect matching portrait copies and metadata structures.
+            </p>
+          </div>
+          <div className="mt-6 flex flex-col gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleScanAll}
+              disabled={scanning || photos.length === 0}
+              className="flex items-center gap-2 rounded-none w-full border-border hover:border-primary hover:text-primary"
+            >
+              {scanning ? (
+                <>
+                  <Loader2 className="size-3 animate-spin text-primary" /> SCANNING...
+                </>
+              ) : (
+                "> RUN_AUTOMATED_SCAN"
+              )}
+            </Button>
+            <Button size="sm" variant="ghost" asChild className="rounded-none w-full text-left justify-start px-2">
+              <Link to="/app/photos">&gt; MANAGE_PROTECTED_PHOTOS</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
       <Card className="border border-border bg-black rounded-none">
         <CardHeader className="flex-row items-center justify-between border-b border-border/50 pb-4">
-          <CardTitle className="text-sm font-bold text-primary">&gt; RECENT_DETECTIONS</CardTitle>
+          <CardTitle className="text-sm font-bold text-primary">&gt; AI-ASSISTED MATCHES (WE ALSO FOUND SIMILAR MATCHES)</CardTitle>
           <Button asChild variant="ghost" size="sm">
             <Link to="/app/detections">VIEW_ALL</Link>
           </Button>

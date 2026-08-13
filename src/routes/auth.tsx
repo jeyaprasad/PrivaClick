@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, KeyRound, Lock, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { sendOtp, verifyOtp } from "../lib/supabase-fns";
+import { usePrivaclick } from "../lib/store";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -33,9 +34,21 @@ function AuthPage() {
   const [idNumber, setIdNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+
+  const { loadUserData } = usePrivaclick();
 
   const masked =
     idNumber.length > 4 ? `XXXX XXXX ${idNumber.slice(-4)}` : idNumber ? "XXXX XXXX ····" : "";
+
+  // Cooldown countdown timer
+  useEffect(() => {
+    if (cooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCooldown((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   const submitCredentials = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,17 +56,12 @@ function AuthPage() {
       toast.error("Please enter your email and a password of at least 6 characters.");
       return;
     }
-    if (mode === "login") {
-      localStorage.setItem("privaclick_email", email);
-      toast.success("Welcome back.");
-      navigate({ to: "/app" });
-      return;
-    }
 
     setLoading(true);
     try {
       await sendOtp({ data: { email } });
       setStage("otp");
+      setCooldown(30);
       toast.success(`> OTP_SENT: A 6-digit code has been sent to ${email}`);
     } catch (err: any) {
       console.error(err);
@@ -75,8 +83,9 @@ function AuthPage() {
       const res = await verifyOtp({ data: { email, code: otp } });
       if (res.success) {
         localStorage.setItem("privaclick_email", email);
-        toast.success("> VERIFIED: ACCOUNT_ACTIVATED");
-        navigate({ to: "/onboarding" });
+        await loadUserData(email);
+        toast.success(mode === "login" ? "Welcome back." : "> VERIFIED: ACCOUNT_ACTIVATED");
+        navigate({ to: mode === "login" ? "/app" : "/onboarding" });
       } else {
         toast.error(`> ERROR: ${res.error || "VERIFICATION_FAILED"}`);
       }
@@ -233,6 +242,27 @@ function AuthPage() {
                   disabled={loading}
                 >
                   Go back
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full text-xs text-muted-foreground hover:text-primary"
+                  onClick={async () => {
+                    if (cooldown > 0) return;
+                    setLoading(true);
+                    try {
+                      await sendOtp({ data: { email } });
+                      setCooldown(30);
+                      toast.success(`> OTP_RESENT: A new code was sent to ${email}`);
+                    } catch (err) {
+                      toast.error("> ERROR: FAILED_TO_RESEND_OTP");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                  disabled={loading || cooldown > 0}
+                >
+                  {cooldown > 0 ? `Resend code in ${cooldown}s` : "Resend code"}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">

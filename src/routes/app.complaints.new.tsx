@@ -560,20 +560,31 @@ function NewComplaint() {
           ))}
 
           <div className="space-y-2 pt-2">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <Label htmlFor="description">Generated Statement</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="h-7 text-[10px] uppercase font-mono"
-                onClick={() => {
-                  navigator.clipboard.writeText(description);
-                  toast.success("> STATEMENT_COPIED_TO_CLIPBOARD");
-                }}
-              >
-                Copy Text
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-[10px] uppercase font-mono border-primary/30 text-primary hover:bg-primary/10 flex items-center gap-1"
+                  onClick={handleExternalReport}
+                >
+                  Report on {detection.platform} <ExternalLink className="size-2.5" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-7 text-[10px] uppercase font-mono"
+                  onClick={() => {
+                    navigator.clipboard.writeText(description);
+                    toast.success("> STATEMENT_COPIED_TO_CLIPBOARD");
+                  }}
+                >
+                  Copy Text
+                </Button>
+              </div>
             </div>
             <Textarea
               id="description"

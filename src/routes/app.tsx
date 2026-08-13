@@ -58,16 +58,18 @@ function AppLayout() {
             </p>
             <p className="opacity-70">[{user.maskedId}]</p>
           </div>
-          <Link
-            to="/"
-            onClick={() => {
+          <a
+            href="/auth"
+            onClick={(e) => {
+              e.preventDefault();
               localStorage.removeItem("privaclick_email");
+              window.location.href = "/auth";
             }}
-            className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive hover:text-black uppercase font-bold transition-colors"
+            className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive hover:text-black uppercase font-bold transition-colors cursor-pointer"
           >
             <LogOut className="size-4" />
             &gt; LOGOUT
-          </Link>
+          </a>
         </div>
       </aside>
 

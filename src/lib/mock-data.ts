@@ -5,7 +5,7 @@ export const photo2 =
 export const photo3 =
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80";
 export const photo4 =
-  "https://upload.wikimedia.org/wikipedia/commons/a/a4/Ada_Lovelace_portrait.jpg";
+  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=800&q=80";
 
 export type Platform = "Instagram" | "Facebook" | "X (Twitter)" | "Pinterest" | "Other";
 export type DetectionStatus = "Needs Review" | "Confirmed Unauthorized" | "Complaint Filed" | "Dismissed";
@@ -27,6 +27,7 @@ export type Detection = {
   confidence: number;
   foundOn: string;
   status: DetectionStatus;
+  matchType?: "exact" | "partial" | "similar";
 };
 
 export type Complaint = {
@@ -52,7 +53,7 @@ export const initialPhotos: RegisteredPhoto[] = [
   { id: "p1", name: "Profile portrait", src: photo1, addedOn: "12 Jun 2026" },
   { id: "p2", name: "Park afternoon", src: photo2, addedOn: "12 Jun 2026" },
   { id: "p3", name: "Cafe candid", src: photo3, addedOn: "18 Jun 2026" },
-  { id: "p4", name: "Ada Lovelace Portrait", src: photo4, addedOn: "12 Aug 2026" },
+  { id: "p4", name: "My Profile Portrait", src: photo4, addedOn: "12 Aug 2026" },
 ];
 
 export const initialDetections: Detection[] = [

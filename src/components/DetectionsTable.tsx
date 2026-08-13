@@ -75,7 +75,20 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
                   <p className="max-w-52 truncate text-[10px] text-muted-foreground">{d.sourceUrl}</p>
                 </TableCell>
                 <TableCell>
-                  <span className="text-sm font-bold text-primary">{d.confidence}%</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-primary">{d.confidence}%</span>
+                    {d.matchType && (
+                      <span className={`px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
+                        d.matchType === "exact"
+                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          : d.matchType === "partial"
+                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                      }`}>
+                        {d.matchType}
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-1.5 h-1.5 w-24 overflow-hidden bg-black border border-border/50">
                     <div
                       className="bg-primary h-full"
@@ -133,9 +146,20 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
                     className="aspect-square w-full object-cover"
                   />
                   <figcaption className="space-y-1 border-t border-border bg-primary/5 px-3 py-2 text-[10px] text-primary">
-                    <p className="font-bold">
-                      &gt; TARGET: {active.platform.toUpperCase()} · CONFIDENCE: {active.confidence}% · DATE: {active.foundOn.toUpperCase()}
-                    </p>
+                    <div className="font-bold flex items-center justify-between">
+                      <span>&gt; TARGET: {active.platform.toUpperCase()} · CONFIDENCE: {active.confidence}%</span>
+                      {active.matchType && (
+                        <span className={`px-1 text-[8px] font-bold uppercase tracking-wider ${
+                          active.matchType === "exact"
+                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                            : active.matchType === "partial"
+                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                            : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
+                        }`}>
+                          {active.matchType}
+                        </span>
+                      )}
+                    </div>
                     <p className="flex items-center gap-1 truncate opacity-70">
                       <ExternalLink className="size-3" /> {active.sourceUrl}
                     </p>

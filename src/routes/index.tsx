@@ -30,59 +30,44 @@ export const Route = createFileRoute("/")({
   component: Landing,
 });
 
-function Hero3DGraphic() {
+function DetectionFoundCard() {
   return (
-    <div className="relative w-full aspect-square max-w-[480px] mx-auto flex items-center justify-center">
-      {/* Background layer: glow & particles */}
-      <div className="absolute inset-0 bg-primary/15 blur-[100px] rounded-full" />
-      
-      {/* Floating particles */}
-      <div className="absolute top-1/4 left-1/4 size-2 rounded-full bg-primary/40 animate-[float_4s_ease-in-out_infinite_alternate]" />
-      <div className="absolute top-1/2 right-1/4 size-3 rounded-full bg-primary/20 animate-[float_6s_ease-in-out_infinite_alternate_reverse]" />
-      <div className="absolute bottom-1/4 left-1/3 size-1.5 rounded-full bg-primary/50 animate-[float_3s_ease-in-out_infinite_alternate]" />
-
-      {/* Floating Accent Icons */}
-      <div className="absolute top-[15%] right-[10%] bg-card p-3 rounded-xl border border-white/10 shadow-[0_15px_30px_rgba(0,0,0,0.5)] z-20 animate-[float_5s_ease-in-out_infinite_alternate]">
-        <Lock className="size-5 text-muted-foreground" />
-      </div>
-      <div className="absolute bottom-[20%] left-[5%] bg-card p-3 rounded-xl border border-white/10 shadow-[0_15px_30px_rgba(0,0,0,0.5)] z-20 animate-[float_7s_ease-in-out_infinite_alternate_reverse]">
-        <ScanEye className="size-6 text-primary" />
-      </div>
-      <div className="absolute top-[30%] left-[10%] bg-card p-2 rounded-lg border border-white/10 shadow-[0_10px_20px_rgba(0,0,0,0.5)] z-0 animate-[float_4s_ease-in-out_infinite_alternate]" style={{ animationDelay: '1s' }}>
-        <CheckCircle2 className="size-4 text-primary" />
-      </div>
-
-      {/* Mid Layer: Photo Card */}
-      <div className="relative w-64 h-80 bg-slate-900 border border-white/10 rounded-2xl shadow-[0_25px_50px_-12px_rgba(0,0,0,0.8)] -rotate-[8deg] overflow-hidden flex flex-col z-10 transition-transform duration-700 hover:-rotate-6">
-        
-        {/* Photo Content Area */}
-        <div className="flex-1 bg-slate-800 m-3 mb-0 rounded-xl overflow-hidden relative flex flex-col items-center justify-end pt-8">
-          
-          {/* Abstract Silhouette */}
-          <div className="w-16 h-16 bg-slate-700 rounded-full mb-3 z-10" />
-          <div className="w-28 h-20 bg-slate-700 rounded-t-[40px] z-10" />
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent z-10" />
-
-          {/* Scanning Effect */}
-          <div className="absolute left-0 right-0 h-0.5 bg-primary  animate-[scan_3s_linear_infinite] z-20 shadow-[0_0_15px_rgba(16,185,129,1)]">
-            <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-primary/30 to-transparent translate-y-[-1px]" />
+    <div className="relative w-full max-w-sm mx-auto">
+      <div className="absolute -inset-1 bg-gradient-to-tr from-destructive/20 to-primary/10 rounded-2xl blur-2xl" />
+      <div className="relative bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-[float_6s_ease-in-out_infinite_alternate]">
+        <div className="p-4 border-b border-border bg-muted/30 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive">
+            <ScanEye className="size-5" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground text-sm">Match Detected</h3>
+            <p className="text-xs text-muted-foreground flex items-center gap-1">
+              98% Confidence • Instagram
+            </p>
           </div>
         </div>
-        
-        {/* Card Footer */}
-        <div className="h-16 px-5 flex flex-col justify-center gap-2">
-          <div className="h-2 w-20 bg-slate-800 rounded-full" />
-          <div className="h-1.5 w-12 bg-slate-800 rounded-full opacity-50" />
-        </div>
-
-        {/* Foreground Badge (Verification Shield) */}
-        <div className="absolute -bottom-4 -right-4 bg-[#0A0E17] p-1.5 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.4)] border border-primary/20 rotate-[8deg] z-30">
-          <div className="bg-primary/10 border border-primary/30 p-4 rounded-full flex items-center justify-center relative overflow-hidden">
-            <div className="absolute inset-0 bg-primary/20 blur-md" />
-            <ShieldCheck className="size-8 text-primary relative z-10 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+        <div className="p-4">
+          <div className="relative h-48 w-full rounded-md overflow-hidden bg-muted">
+            <img 
+              src="https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80" 
+              alt="Detected image" 
+              className="object-cover w-full h-full opacity-90"
+            />
+            <div className="absolute inset-0 border-2 border-destructive/80 m-4 rounded" />
+          </div>
+          <div className="mt-4 p-3 rounded-md bg-muted/50 border border-border">
+            <p className="text-xs font-semibold text-foreground mb-1">Source URL</p>
+            <p className="text-xs text-muted-foreground truncate font-mono">instagram.com/p/unauthorized...</p>
           </div>
         </div>
-
+        <div className="p-4 pt-0 flex gap-3">
+          <Button variant="outline" className="flex-1 border-border text-foreground">
+            Dismiss
+          </Button>
+          <Button className="flex-1 bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            Take Action
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -98,7 +83,7 @@ function Landing() {
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
               <ShieldCheck className="size-5" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-white">Privaclick</span>
+            <span className="text-xl font-bold tracking-tight text-foreground">Privaclick</span>
           </Link>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground bg-white/5 px-6 py-2 rounded-full border border-white/5">
             <a href="#how-it-works" className="hover:text-primary transition-colors">How It Works</a>
@@ -106,7 +91,7 @@ function Landing() {
             <Link to="/about" className="hover:text-primary transition-colors">About</Link>
           </div>
           <div className="flex items-center gap-3">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex hover:text-white rounded-full">
+            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex hover:text-foreground rounded-full">
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90  shadow-primary/20 rounded-full px-6">
@@ -125,8 +110,8 @@ function Landing() {
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
                 New — AI Deepfake Detection <ArrowRight className="size-3 ml-1" />
               </div>
-              <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl xl:text-6xl text-balance">
-                Take Back Control of Your <span className="emerald-gradient-text emerald-glow">Photos</span> Online
+              <h1 className="font-display text-5xl font-bold leading-tight tracking-tight text-foreground sm:text-6xl xl:text-7xl text-balance">
+                Take Back Control of Your <span className="text-primary italic">Photos</span> Online.
               </h1>
               <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg text-balance">
                 Advanced AI detection paired with guided cybercrime complaint filing. We scan the web for unauthorized use of your images and help you take them down.
@@ -135,14 +120,14 @@ function Landing() {
                 <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-semibold  shadow-primary/25 rounded-full">
                   <Link to="/auth">Get Started Free</Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold border-border bg-card hover:bg-accent hover:text-white rounded-full backdrop-blur-sm">
+                <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold border-border bg-card hover:bg-accent hover:text-foreground rounded-full backdrop-blur-sm">
                   <a href="#how-it-works">See How It Works</a>
                 </Button>
               </div>
             </div>
             
             <div className="lg:ml-auto w-full relative">
-              <Hero3DGraphic />
+              <DetectionFoundCard />
             </div>
           </div>
         </section>
@@ -168,7 +153,7 @@ function Landing() {
         <section id="features" className="py-24 relative">
           <div className="mx-auto max-w-6xl px-6">
             <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-up">
-              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">Everything you need to protect your image</h2>
+              <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Everything you need to protect your image</h2>
             </div>
             
             <div className="grid gap-6 md:grid-cols-3">
@@ -190,10 +175,10 @@ function Landing() {
                 },
               ].map((f, i) => (
                 <div key={i} className="group relative rounded-xl border border-primary/50 bg-primary/10 p-8 feature-card-hover">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-md">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-foreground shadow-md">
                     <f.icon className="size-6" />
                   </div>
-                  <h3 className="mb-3 text-xl font-semibold text-white">{f.title}</h3>
+                  <h3 className="mb-3 text-xl font-semibold text-foreground">{f.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
               ))}
@@ -202,27 +187,37 @@ function Landing() {
         </section>
 
         {/* How It Works */}
-        <section id="how-it-works" className="border-t border-border bg-card/30 py-24">
+        <section id="how-it-works" className="border-t border-border bg-muted/20 py-24">
           <div className="mx-auto max-w-6xl px-6">
             <div className="text-center max-w-2xl mx-auto mb-16 animate-fade-up">
-              <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">How It Works</h2>
+              <h2 className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl">How It Works</h2>
               <p className="mt-4 text-lg text-muted-foreground">From upload to takedown — simple, fast, and fully in your control.</p>
             </div>
             
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-3">
               {[
-                { title: "Register Your Photos", desc: "Upload your photos once. We scan the web to detect unauthorized use." },
-                { title: "Get Notified", desc: "Our AI flags a match and shows you where it was found." },
-                { title: "Generate & Submit Complaint", desc: "We auto-fill a cybercrime complaint — you review and submit." },
+                { 
+                  icon: Database,
+                  title: "1. Register Photos", 
+                  desc: "Upload your images to our secure, encrypted vault. We extract features for matching, not identity." 
+                },
+                { 
+                  icon: ScanEye,
+                  title: "2. Continuous Scanning", 
+                  desc: "Our AI engine actively monitors the public web, social platforms, and forums for visual matches." 
+                },
+                { 
+                  icon: ShieldCheck,
+                  title: "3. Take Action", 
+                  desc: "When a match is found, auto-generate and file a formal cybercrime complaint with one click." 
+                },
               ].map((step, i) => (
-                <div key={i} className="flex gap-6 rounded-xl border border-primary/50 bg-primary/10 p-6 items-start feature-card-hover">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white font-bold shadow-md">
-                    {i + 1}
+                <div key={i} className="flex flex-col rounded-2xl border border-border bg-card p-8 shadow-sm feature-card-hover items-center text-center">
+                  <div className="mb-6 flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                    <step.icon className="size-8" />
                   </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.desc}</p>
-                  </div>
+                  <h3 className="text-xl font-display font-semibold text-foreground mb-3">{step.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{step.desc}</p>
                 </div>
               ))}
             </div>
@@ -233,7 +228,7 @@ function Landing() {
         <section className="py-24">
           <div className="mx-auto max-w-6xl px-6">
             <div className="mb-16 animate-fade-up">
-              <h2 className="text-3xl font-bold tracking-tight text-white">Comprehensive Protection, Built In</h2>
+              <h2 className="font-display text-3xl font-bold tracking-tight text-foreground">Comprehensive Protection, Built In</h2>
             </div>
             
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,11 +245,11 @@ function Landing() {
                 { icon: Sliders, title: "Data Control", desc: "One-click complete data wipe" },
               ].map((c, i) => (
                 <div key={i} className="flex items-center gap-4 rounded-xl border border-primary/50 bg-primary/10 p-5 feature-card-hover">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-md">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-foreground shadow-md">
                     <c.icon className="size-5" />
                   </div>
                   <div>
-                    <h4 className="font-semibold text-white">{c.title}</h4>
+                    <h4 className="font-semibold text-foreground">{c.title}</h4>
                     <p className="text-xs text-muted-foreground">{c.desc}</p>
                   </div>
                 </div>
@@ -267,7 +262,7 @@ function Landing() {
         <section className="border-t border-border bg-primary/5 py-24 relative overflow-hidden">
           <div className="absolute inset-0 bg-topography opacity-50 mix-blend-overlay" />
           <div className="relative mx-auto max-w-3xl px-6 text-center animate-fade-up">
-            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-6">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-6">
               Ready to secure your digital footprint?
             </h2>
             <p className="text-lg text-muted-foreground mb-10">

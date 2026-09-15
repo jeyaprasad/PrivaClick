@@ -35,6 +35,7 @@ type Store = {
   notifications: { email: boolean; sms: boolean; weekly: boolean };
   riskScore: number;
   lastScanned: string | null;
+  scanHistory: any[];
   isScanning: boolean;
   addPhotos: (files: { name: string; src: string }[]) => void;
   removePhoto: (id: string) => void;
@@ -67,6 +68,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
   });
   const [notifications, setNotifications] = useState({ email: true, sms: false, weekly: true });
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [scanHistory, setScanHistory] = useState<any[]>([]);
   const [isScanning, setIsScanning] = useState(false);
 
   const loadUserData = useCallback(async () => {
@@ -78,6 +80,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       if (data.complaints) setComplaints(data.complaints);
       if (data.notifications) setNotifications(data.notifications);
       if (data.lastScanned) setLastScanned(data.lastScanned);
+      if (data.scanHistory) setScanHistory(data.scanHistory);
     } catch (err) {
       console.error("Failed to load store data from Supabase:", err);
     }
@@ -96,6 +99,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
         if (data.complaints) setComplaints(data.complaints);
         if (data.notifications) setNotifications(data.notifications);
         if (data.lastScanned) setLastScanned(data.lastScanned);
+        if (data.scanHistory) setScanHistory(data.scanHistory);
       })
       .catch((err) => {
         console.error("Failed to load store data from Supabase:", err);
@@ -423,6 +427,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       notifications,
       riskScore,
       lastScanned,
+      scanHistory,
       isScanning,
       addPhotos,
       removePhoto,
@@ -445,6 +450,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       notifications,
       riskScore,
       lastScanned,
+      scanHistory,
       isScanning,
       addPhotos,
       removePhoto,

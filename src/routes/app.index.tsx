@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Camera, FileText, ScanFace, ShieldCheck, Loader2 } from "lucide-react";
+import { Camera, FileText, ScanFace, ShieldCheck, Loader2, Activity } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RiskScoreChart } from "@/components/RiskScore";
@@ -24,12 +26,47 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Dashboard() {
-  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned, triggerJuryDemo, isScanning } = usePrivaclick();
+  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned, triggerJuryDemo, isScanning, scanHistory } = usePrivaclick();
   const [scanning, setScanning] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
 
-  const matches = detections.filter((d) => d.status !== "Dismissed").length;
+  const needsReviewMatches = detections.filter((d) => d.status === "Needs Review").length;
+  const resolvedMatches = detections.filter((d) => d.status === "Dismissed" || d.status === "Action Taken").length;
   const activeComplaints = complaints.filter((c) => c.status !== "Action Taken").length;
+
+  const chartData = useMemo(() => {
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      days.push({
+        date: d.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        detections: 0,
+        rawDate: d.toISOString().split("T")[0]
+      });
+    }
+
+    if (scanHistory) {
+      scanHistory.forEach((sh) => {
+        const dateObj = new Date(sh.scanned_at);
+        if (!isNaN(dateObj.getTime())) {
+          const dStr = dateObj.toISOString().split("T")[0];
+          const day = days.find((x) => x.rawDate === dStr);
+          if (day) {
+            day.detections += (sh.new_detections_count || 0);
+          }
+        }
+      });
+    }
+    return days;
+  }, [scanHistory]);
+
+  const stats = [
+    { label: "Photos Protected", value: photos.length, icon: Camera, colorClass: "text-primary" },
+    { label: "Needs Review", value: needsReviewMatches, icon: ScanFace, colorClass: "text-destructive" },
+    { label: "Resolved Issues", value: resolvedMatches, icon: ShieldCheck, colorClass: "text-accent" },
+    { label: "Active Complaints", value: activeComplaints, icon: FileText, colorClass: "text-destructive" },
+  ];
 
   const handleScanAll = async () => {
     if (photos.length === 0) {
@@ -78,25 +115,21 @@ function Dashboard() {
     return `${diffHours}h ago`;
   };
 
-  const cards = [
-    { label: "PHOTOS_PROTECTED", value: photos.length, icon: Camera, accent: false },
-    { label: "MATCHES_FOUND", value: matches, icon: ScanFace, accent: matches > 0 },
-    { label: "ACTIVE_COMPLAINTS", value: activeComplaints, icon: FileText, accent: false },
-  ];
+
 
   return (
     <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-primary">&gt; HELLO, {user?.name?.split(" ")[0].toUpperCase() ?? "USER"}</h1>
+          <h1 className="text-3xl font-display font-bold text-primary">Hello, {user?.name?.split(" ")[0].toUpperCase() ?? "USER"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            // Here's what's happening with your photos.
+            Here is what is happening with your protected identity.
             {isScanning ? (
               <span className="ml-2 text-primary animate-pulse font-bold flex items-center inline-flex gap-1">
                 <Loader2 className="size-3 animate-spin" /> SCANNING_NOW...
               </span>
             ) : (
-              lastScanned && ` · LAST_SCANNED: ${formatLastScanned(lastScanned).toUpperCase()}`
+              lastScanned && ` · LAST SCANNED: ${formatLastScanned(lastScanned).toUpperCase()}`
             )}
           </p>
         </div>
@@ -144,32 +177,61 @@ function Dashboard() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {cards.map((c) => (
-          <Card key={c.label} className="border border-border bg-card rounded-lg">
+        {stats.map((c) => (
+          <Card key={c.label} className="border border-border bg-card rounded-xl shadow-sm">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-bold text-muted-foreground">{c.label}</p>
-                <c.icon className="size-4 text-primary" />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{c.label}</p>
+                <div className={`p-2 rounded-lg bg-muted/50 ${c.colorClass}`}>
+                  <c.icon className="size-4" />
+                </div>
               </div>
-              <p
-                className={
-                  c.accent
-                    ? "mt-3 text-3xl font-bold text-destructive "
-                    : "mt-3 text-3xl font-bold text-primary "
-                }
-              >
+              <p className={`mt-4 text-3xl font-display font-bold ${c.colorClass}`}>
                 {c.value}
               </p>
             </CardContent>
           </Card>
         ))}
-        <Card className="border border-border bg-card rounded-lg">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-muted-foreground">RISK_SCORE</p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="border border-border bg-card rounded-xl shadow-sm">
+          <CardHeader className="border-b border-border/50 pb-4">
+            <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Activity className="size-4 text-primary" />
+              Detections Found (Last 30 Days)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorDetections" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--color-border)" />
+                <XAxis dataKey="date" stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} />
+                <YAxis stroke="var(--color-muted-foreground)" fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => Math.floor(v) === v ? v : ''} />
+                <Tooltip 
+                  contentStyle={{ backgroundColor: "var(--color-card)", borderColor: "var(--color-border)", borderRadius: "8px", fontSize: "12px" }}
+                  itemStyle={{ color: "var(--color-primary)" }}
+                />
+                <Area type="monotone" dataKey="detections" stroke="var(--color-primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorDetections)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card className="border border-border bg-card rounded-xl shadow-sm">
+          <CardHeader className="border-b border-border/50 pb-4">
+            <CardTitle className="text-sm font-semibold text-foreground flex items-center gap-2">
               <ShieldCheck className="size-4 text-primary" />
-            </div>
-            <div className="mt-3">
+              Protection Risk Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-6 flex flex-col items-center justify-center">
+            <div className="w-full max-w-xs mt-4">
               <RiskScoreChart score={riskScore} />
             </div>
           </CardContent>
@@ -184,7 +246,7 @@ function Dashboard() {
           <div>
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-              <h2 className="text-sm font-bold text-primary tracking-wider uppercase">&gt; PRIMARY_ACTION: REPORT_UNAUTHORIZED_USE</h2>
+              <h2 className="text-sm font-bold text-primary tracking-wider uppercase">Take Action: Report Unauthorized Use</h2>
             </div>
             <p className="mt-3 text-xs text-muted-foreground leading-relaxed max-w-xl">
               Found your photo being used without permission or spotted an impersonation profile? 
@@ -209,7 +271,7 @@ function Dashboard() {
         {/* Secondary Action Block: AI scanner */}
         <div className="flex flex-col justify-between border border-border bg-card p-6">
           <div>
-            <h2 className="text-sm font-bold text-muted-foreground tracking-wider uppercase">&gt; SECONDARY: AI_WEB_SCANNER</h2>
+            <h2 className="text-sm font-bold text-muted-foreground tracking-wider uppercase">Automated Web Scanner</h2>
             <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
               Run automated reverse-image scans across indexable public sites to detect matching portrait copies and metadata structures.
             </p>

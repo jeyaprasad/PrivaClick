@@ -135,22 +135,28 @@ export const fetchStoreData = createServerFn({ method: "GET" })
     }
 
     try {
-      // 5. Fetch last scanned timestamp from scan_history table
+      // 5. Fetch scan history
+      let scanHistoryData: any[] = [];
       if (photoIds.length > 0) {
         const { data, error } = await supabase
           .from("scan_history")
-          .select("scanned_at")
+          .select("*")
           .in("photo_id", photoIds)
           .order("scanned_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        if (!error) lastScan = data;
+          .limit(100);
+        if (!error && data) {
+          scanHistoryData = data;
+          if (data.length > 0) {
+            lastScan = data[0];
+          }
+        }
       }
     } catch (e) {
       console.warn("Failed to fetch scan history from Supabase:", e);
     }
-
+      
     return {
+        scanHistory: scanHistoryData,
       user: userData ? {
         id: userData.id,
         name: userData.name,

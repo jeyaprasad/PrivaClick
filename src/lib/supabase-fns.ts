@@ -1,6 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
 import { SignJWT, jwtVerify } from "jose";
+import { createClient } from "@supabase/supabase-js";
+const supabaseUrl = process.env.SUPABASE_URL || import.meta.env?.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || import.meta.env?.VITE_SUPABASE_ANON_KEY || "placeholder-anon-key";
+
+async function getAuthSupabase() {
+  const token = getCookie("privaclick_session");
+  if (token) {
+    return createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    });
+  }
+  return supabase;
+}
+
 import { supabase } from "./supabase.server";
 import { z } from "zod";
 import nodemailer from "nodemailer";
@@ -24,7 +42,7 @@ const localOtpStore = new Map<string, { code: string; expiresAt: Date }>();
 
 
 // Session Secret for JWT
-const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET || "default_fallback_secret_for_dev_min_32_chars");
+const SESSION_SECRET = new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET || process.env.SESSION_SECRET || "default_fallback_secret_for_dev_min_32_chars");
 
 async function verifySessionServer() {
   const token = getCookie("privaclick_session");
@@ -55,7 +73,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
 
     try {
       // 1. Fetch user by email or default u1
-      let query = supabase.from("users").select("*");
+      let query = (await getAuthSupabase()).from("users").select("*");
       if (authUserId) {
         query = query.eq("id", authUserId);
       } else {
@@ -628,7 +646,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       };
 
       try {
-        await supabase.from("detections").insert(newRow);
+        await (await getAuthSupabase()).from("detections").insert(newRow);
       } catch (err) {
         console.warn("Supabase offline, detection added locally.", err);
       }
@@ -706,6 +724,39 @@ export const sendOtp = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string().email() }))
   .handler(async ({ data }) => {
     const { email } = data;
+    const FIFTEEN_MINS_MS = 15 * 60 * 1000;
+    const timeLimit = new Date(Date.now() - FIFTEEN_MINS_MS).toISOString();
+
+    // Check rate limit
+    let recentRequests: any[] = [];
+    try {
+      const { data, error } = await (await getAuthSupabase())
+        .from("otp_requests")
+        .select("requested_at")
+        .eq("email", email)
+        .gte("requested_at", timeLimit)
+        .order("requested_at", { ascending: true });
+
+      if (!error && data) {
+        recentRequests = data;
+      }
+    } catch (e) {
+      console.warn("Could not fetch rate limit data", e);
+    }
+
+    if (recentRequests.length >= 3) {
+      const oldest = new Date(recentRequests[0].requested_at).getTime();
+      const waitMins = Math.ceil((oldest + FIFTEEN_MINS_MS - Date.now()) / 60000);
+      throw new Error(`Too many attempts, try again in ${waitMins} minutes`);
+    }
+
+    // Insert new request record
+    try {
+      await (await getAuthSupabase()).from("otp_requests").insert({ email });
+    } catch (e) {
+      console.warn("Could not log otp request", e);
+    }
+
     
     // Generate a 6-digit OTP code
     const code = String(Math.floor(100000 + Math.random() * 900000));
@@ -807,7 +858,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
     if (isExpired) {
       localOtpStore.delete(email);
       try {
-        await supabase.from("email_otps").delete().eq("email", email);
+        await (await getAuthSupabase()).from("email_otps").delete().eq("email", email);
       } catch (e) {}
       return { success: false, error: "Verification code has expired. Please request a new one." };
     }
@@ -820,7 +871,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
     // Delete record on success to prevent reuse
     localOtpStore.delete(email);
     try {
-      await supabase.from("email_otps").delete().eq("email", email);
+      await (await getAuthSupabase()).from("email_otps").delete().eq("email", email);
     } catch (e) {}
 
     // Ensure user record is registered in users table
@@ -834,7 +885,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
 
       if (!existingUser) {
         finalUserId = `u-${Date.now()}`;
-        await supabase.from("users").insert({
+        await (await getAuthSupabase()).from("users").insert({
           id: finalUserId,
           name: email.split("@")[0].toUpperCase(),
           email: email,

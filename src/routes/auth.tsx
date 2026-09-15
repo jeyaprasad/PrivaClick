@@ -65,7 +65,7 @@ function AuthPage() {
       toast.success(`> OTP_SENT: A 6-digit code has been sent to ${email}`);
     } catch (err: any) {
       console.error(err);
-      toast.error(`> ERROR: FAILED_TO_SEND_OTP. Please check your credentials.`);
+      toast.error(`> ERROR: ${err.message || "FAILED_TO_SEND_OTP"}`);
     } finally {
       setLoading(false);
     }
@@ -253,9 +253,9 @@ function AuthPage() {
                       await sendOtp({ data: { email } });
                       setCooldown(30);
                       toast.success(`> OTP_RESENT: A new code was sent to ${email}`);
-                    } catch (err) {
-                      toast.error("> ERROR: FAILED_TO_RESEND_OTP");
-                    } finally {
+                      } catch (err: any) {
+                        toast.error(`> ERROR: ${err.message || "FAILED_TO_RESEND_OTP"}`);
+                      } finally {
                       setLoading(false);
                     }
                   }}

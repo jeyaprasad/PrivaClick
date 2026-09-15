@@ -44,10 +44,32 @@ CREATE TABLE IF NOT EXISTS complaints (
 );
 
 -- Enable Row Level Security (RLS) on tables if needed, but since we connect via service role or want it simple for demo:
--- ALTER TABLE users ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE detections ENABLE ROW LEVEL SECURITY;
--- ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can access their own data" ON users FOR ALL USING (id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId'));
+
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can access their own photos" ON photos FOR ALL USING (user_id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId'));
+
+ALTER TABLE detections ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can access their own detections" ON detections FOR ALL USING (
+    photo_id IN (SELECT id FROM photos WHERE user_id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId'))
+);
+
+ALTER TABLE complaints ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can access their own complaints" ON complaints FOR ALL USING (
+    detection_id IN (SELECT id FROM detections WHERE photo_id IN (SELECT id FROM photos WHERE user_id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId')))
+);
+
+ALTER TABLE known_safe_urls ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can access their own safe urls" ON known_safe_urls FOR ALL USING (user_id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId'));
+
+ALTER TABLE email_otps ENABLE ROW LEVEL SECURITY;
+-- email_otps needs to be accessible anonymously to create/verify OTPs before session exists
+CREATE POLICY "Anon can insert otps" ON email_otps FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anon can select otps" ON email_otps FOR SELECT USING (true);
+CREATE POLICY "Anon can delete otps" ON email_otps FOR DELETE USING (true);
+
 
 -- Insert seed user
 INSERT INTO users (id, name, email, phone, masked_id, verified_on, known_domains, email_notifications, sms_notifications, weekly_notifications)
@@ -128,3 +150,16 @@ ON CONFLICT (id) DO NOTHING;
 ALTER TABLE detections ADD COLUMN IF NOT EXISTS match_type TEXT;
 
 
+
+-- Create otp_requests table for rate limiting
+CREATE TABLE IF NOT EXISTS otp_requests (
+    id SERIAL PRIMARY KEY,
+    email TEXT NOT NULL,
+    requested_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS on otp_requests
+ALTER TABLE otp_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anon can insert otp_requests" ON otp_requests FOR INSERT WITH CHECK (true);
+CREATE POLICY "Anon can select otp_requests" ON otp_requests FOR SELECT USING (true);
+CREATE POLICY "Anon can delete otp_requests" ON otp_requests FOR DELETE USING (true);

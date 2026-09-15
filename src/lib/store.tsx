@@ -11,8 +11,8 @@ import {
   type Platform,
   type RegisteredPhoto,
 } from "./mock-data";
+import { supabaseClient } from "./supabase-client";
 import {
-  fetchStoreData,
   addPhotosServer,
   removePhotoServer,
   setDetectionStatusServer,
@@ -102,6 +102,74 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       active = false;
     };
   }, []);
+
+
+  useEffect(() => {
+    if (photos.length === 0) return;
+    const photoIds = photos.map(p => p.id);
+    const filter = `photo_id=in.(${photoIds.join(',')})`;
+
+    const detectionIds = detections.map(d => d.id);
+    const complaintsFilter = detectionIds.length > 0 ? `detection_id=in.(${detectionIds.join(',')})` : undefined;
+
+    const channel = supabaseClient
+      .channel('store-updates')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'detections', filter }, (payload) => {
+        const d = payload.new as any;
+        setDetections(prev => {
+          if (prev.some(x => x.id === d.id)) return prev;
+          return [{
+            id: d.id,
+            photoId: d.photo_id,
+            src: photos.find(p => p.id === d.photo_id)?.src || "",
+            platform: d.platform,
+            sourceUrl: d.source_url,
+            confidence: d.confidence,
+            foundOn: d.found_on,
+            status: d.status
+          }, ...prev];
+        });
+        toast.success(`New match found on ${d.platform}`);
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'detections', filter }, (payload) => {
+        const d = payload.new as any;
+        setDetections(prev => prev.map(item => item.id === d.id ? {
+          ...item,
+          status: d.status,
+          confidence: d.confidence
+        } : item));
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'complaints', filter: complaintsFilter }, (payload) => {
+        const c = payload.new as any;
+        setComplaints(prev => {
+          if (prev.some(x => x.id === c.id)) return prev;
+          const det = detections.find(d => d.id === c.detection_id);
+          return [{
+            id: c.id,
+            detectionId: c.detection_id,
+            platform: c.platform,
+            sourceUrl: det?.sourceUrl || "",
+            filedOn: c.filed_on,
+            status: c.status,
+            description: c.description,
+            referenceId: c.reference_id
+          }, ...prev];
+        });
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'complaints', filter: complaintsFilter }, (payload) => {
+        const c = payload.new as any;
+        setComplaints(prev => prev.map(item => item.id === c.id ? {
+          ...item,
+          status: c.status,
+          referenceId: c.reference_id
+        } : item));
+      })
+      .subscribe();
+
+    return () => {
+      supabaseClient.removeChannel(channel);
+    };
+  }, [photos, detections]);
 
   const triggerJuryDemo = useCallback(async () => {
     const targetPhotoId = "p4";

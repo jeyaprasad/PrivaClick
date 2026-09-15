@@ -3,12 +3,12 @@ import { cn } from "@/lib/utils";
 type Tone = "new" | "reviewed" | "filed" | "dismissed" | "neutral" | "success";
 
 const tones: Record<Tone, string> = {
-  new: "text-destructive animate-pulse text-glow",
+  new: "text-destructive animate-pulse ",
   reviewed: "text-secondary",
-  filed: "text-primary text-glow",
+  filed: "text-primary ",
   dismissed: "text-muted-foreground opacity-50",
   neutral: "text-muted-foreground",
-  success: "text-primary text-glow",
+  success: "text-primary ",
 };
 
 export function StatusPill({

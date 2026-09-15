@@ -27,8 +27,8 @@ function AppLayout() {
   const { user } = usePrivaclick();
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-mono lg:flex">
-      <aside className="flex flex-col border-b border-border bg-black lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+    <div className="min-h-screen bg-background text-foreground lg:flex">
+      <aside className="flex flex-col border-b border-border bg-card lg:sticky lg:top-0 lg:h-screen lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
         <div className="flex items-center gap-2 px-5 py-6">
           <span className="font-bold tracking-widest text-primary">&gt; PRIVACLICK</span>
         </div>
@@ -50,7 +50,7 @@ function AppLayout() {
           ))}
         </nav>
         <div className="mt-auto hidden space-y-3 px-5 py-4 lg:block">
-          <div className="border border-border bg-black p-3 font-mono text-xs text-primary/80">
+          <div className="border border-border bg-card p-3 text-xs text-primary/80">
             <div className="border-b border-border pb-1 mb-2">&gt;_ session_info</div>
             <p className="font-bold text-primary">USER: {user.name}</p>
             <p className="truncate opacity-70">ID: {user.email}</p>

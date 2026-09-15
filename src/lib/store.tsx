@@ -35,6 +35,7 @@ type Store = {
   notifications: { email: boolean; sms: boolean; weekly: boolean };
   riskScore: number;
   lastScanned: string | null;
+  isScanning: boolean;
   addPhotos: (files: { name: string; src: string }[]) => void;
   removePhoto: (id: string) => void;
   setDetectionStatus: (id: string, status: DetectionStatus) => void;
@@ -66,6 +67,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
   });
   const [notifications, setNotifications] = useState({ email: true, sms: false, weekly: true });
   const [lastScanned, setLastScanned] = useState<string | null>(null);
+  const [isScanning, setIsScanning] = useState(false);
 
   const loadUserData = useCallback(async () => {
     try {
@@ -164,6 +166,12 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
           referenceId: c.reference_id
         } : item));
       })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'scan_history', filter }, (payload) => {
+        const h = payload.new as any;
+        if (h.scanned_at) {
+          setLastScanned(h.scanned_at);
+        }
+      })
       .subscribe();
 
     return () => {
@@ -233,7 +241,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       return [...mockMatches, ...filtered];
     });
 
-    setLastScanned(new Date().toISOString());
+    // setLastScanned(new Date().toISOString()); (handled by realtime)
     toast.success("> DEMO_ACTIVATED: 4 UNAUTHORIZED WEB MATCHES DETECTED!");
 
     try {
@@ -349,15 +357,18 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
 
   const scanPhotoForMatches = useCallback(async (photoId: string) => {
     try {
+      setIsScanning(true);
       const newDets = await scanPhotoForMatchesServer({ data: photoId });
       if (newDets && newDets.length > 0) {
         setDetections((prev) => [...newDets, ...prev]);
       }
-      setLastScanned(new Date().toISOString());
+      // setLastScanned(new Date().toISOString()); (handled by realtime)
       return newDets;
     } catch (err) {
       console.error("Failed to scan photo for matches in Supabase:", err);
       throw err;
+    } finally {
+      setIsScanning(false);
     }
   }, []);
 
@@ -412,6 +423,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       notifications,
       riskScore,
       lastScanned,
+      isScanning,
       addPhotos,
       removePhoto,
       setDetectionStatus,
@@ -433,6 +445,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       notifications,
       riskScore,
       lastScanned,
+      isScanning,
       addPhotos,
       removePhoto,
       setDetectionStatus,

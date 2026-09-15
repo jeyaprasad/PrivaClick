@@ -184,7 +184,7 @@ export function PhotoUpload({
           {uploadingFiles.map((uf) => (
             <figure
               key={uf.id}
-              className="relative overflow-hidden rounded-lg border border-border bg-black/60 aspect-square flex flex-col justify-between p-3 font-mono text-[10px] text-primary"
+              className="relative overflow-hidden rounded-lg border border-border bg-card/60 aspect-square flex flex-col justify-between p-3 text-[10px] text-primary"
             >
               <div className="space-y-1">
                 <p className="font-bold truncate">{uf.name}</p>

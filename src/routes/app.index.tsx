@@ -24,7 +24,7 @@ export const Route = createFileRoute("/app/")({
 });
 
 function Dashboard() {
-  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned, triggerJuryDemo } = usePrivaclick();
+  const { user, photos, detections, complaints, riskScore, scanPhotoForMatches, lastScanned, triggerJuryDemo, isScanning } = usePrivaclick();
   const [scanning, setScanning] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
 
@@ -85,13 +85,19 @@ function Dashboard() {
   ];
 
   return (
-    <div className="space-y-8 font-mono">
+    <div className="space-y-8">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
           <h1 className="text-2xl font-bold text-primary">&gt; HELLO, {user?.name?.split(" ")[0].toUpperCase() ?? "USER"}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             // Here's what's happening with your photos.
-            {lastScanned && ` · LAST_SCANNED: ${formatLastScanned(lastScanned).toUpperCase()}`}
+            {isScanning ? (
+              <span className="ml-2 text-primary animate-pulse font-bold flex items-center inline-flex gap-1">
+                <Loader2 className="size-3 animate-spin" /> SCANNING_NOW...
+              </span>
+            ) : (
+              lastScanned && ` · LAST_SCANNED: ${formatLastScanned(lastScanned).toUpperCase()}`
+            )}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -139,7 +145,7 @@ function Dashboard() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((c) => (
-          <Card key={c.label} className="border border-border bg-black rounded-none">
+          <Card key={c.label} className="border border-border bg-card rounded-lg">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-bold text-muted-foreground">{c.label}</p>
@@ -148,8 +154,8 @@ function Dashboard() {
               <p
                 className={
                   c.accent
-                    ? "mt-3 text-3xl font-bold text-destructive text-glow"
-                    : "mt-3 text-3xl font-bold text-primary text-glow"
+                    ? "mt-3 text-3xl font-bold text-destructive "
+                    : "mt-3 text-3xl font-bold text-primary "
                 }
               >
                 {c.value}
@@ -157,7 +163,7 @@ function Dashboard() {
             </CardContent>
           </Card>
         ))}
-        <Card className="border border-border bg-black rounded-none">
+        <Card className="border border-border bg-card rounded-lg">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-muted-foreground">RISK_SCORE</p>
@@ -172,7 +178,7 @@ function Dashboard() {
 
       <div className="grid gap-6 md:grid-cols-3">
         {/* Primary Action Block: Report Stolen Photo */}
-        <div className="md:col-span-2 flex flex-col justify-between border border-primary bg-black p-6 font-mono relative overflow-hidden">
+        <div className="md:col-span-2 flex flex-col justify-between border border-primary bg-card p-6 relative overflow-hidden">
           <div className="absolute -right-6 -bottom-6 size-24 bg-primary/10 rounded-full blur-2xl" />
           
           <div>
@@ -187,12 +193,12 @@ function Dashboard() {
             </p>
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button size="sm" asChild className="bg-primary text-black hover:bg-primary/80 font-bold rounded-none">
+            <Button size="sm" asChild className="bg-primary text-black hover:bg-primary/80 font-bold rounded-lg">
               <Link to="/app/complaints/new">
                 &gt; START_MANUAL_REPORT
               </Link>
             </Button>
-            <Button size="sm" variant="outline" asChild className="rounded-none border-primary text-primary hover:bg-primary hover:text-black">
+            <Button size="sm" variant="outline" asChild className="rounded-lg border-primary text-primary hover:bg-primary hover:text-black">
               <Link to="/app/complaints">
                 &gt; TRACK_FILED_REPORTS
               </Link>
@@ -201,7 +207,7 @@ function Dashboard() {
         </div>
 
         {/* Secondary Action Block: AI scanner */}
-        <div className="flex flex-col justify-between border border-border bg-black p-6 font-mono">
+        <div className="flex flex-col justify-between border border-border bg-card p-6">
           <div>
             <h2 className="text-sm font-bold text-muted-foreground tracking-wider uppercase">&gt; SECONDARY: AI_WEB_SCANNER</h2>
             <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
@@ -214,7 +220,7 @@ function Dashboard() {
               size="sm"
               onClick={handleScanAll}
               disabled={scanning || photos.length === 0}
-              className="flex items-center gap-2 rounded-none w-full border-border hover:border-primary hover:text-primary"
+              className="flex items-center gap-2 rounded-lg w-full border-border hover:border-primary hover:text-primary"
             >
               {scanning ? (
                 <>
@@ -224,14 +230,14 @@ function Dashboard() {
                 "> RUN_AUTOMATED_SCAN"
               )}
             </Button>
-            <Button size="sm" variant="ghost" asChild className="rounded-none w-full text-left justify-start px-2">
+            <Button size="sm" variant="ghost" asChild className="rounded-lg w-full text-left justify-start px-2">
               <Link to="/app/photos">&gt; MANAGE_PROTECTED_PHOTOS</Link>
             </Button>
           </div>
         </div>
       </div>
 
-      <Card className="border border-border bg-black rounded-none">
+      <Card className="border border-border bg-card rounded-lg">
         <CardHeader className="flex-row items-center justify-between border-b border-border/50 pb-4">
           <CardTitle className="text-sm font-bold text-primary">&gt; AI-ASSISTED MATCHES (WE ALSO FOUND SIMILAR MATCHES)</CardTitle>
           <Button asChild variant="ghost" size="sm">

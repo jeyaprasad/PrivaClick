@@ -39,7 +39,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
   return (
     <>
       {rows.length === 0 ? (
-        <div className="border border-border bg-black px-6 py-14 text-center font-mono text-primary">
+        <div className="border border-border bg-card px-6 py-14 text-center text-primary">
           <ShieldCheck className="animate-shield-pulse mx-auto size-10 text-primary" />
           <p className="mt-4 text-sm font-bold">&gt; NO_MATCHES_FOUND</p>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -47,7 +47,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
           </p>
         </div>
       ) : (
-      <div className="border border-border bg-black overflow-x-auto font-mono">
+      <div className="border border-border bg-card overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow className="border-b border-border hover:bg-transparent">
@@ -67,7 +67,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
                     src={d.src}
                     alt="Detected match thumbnail"
                     loading="lazy"
-                    className="size-12 rounded-none object-cover border border-border"
+                    className="size-12 rounded-lg object-cover border border-border"
                   />
                 </TableCell>
                 <TableCell>
@@ -89,7 +89,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
                       </span>
                     )}
                   </div>
-                  <div className="mt-1.5 h-1.5 w-24 overflow-hidden bg-black border border-border/50">
+                  <div className="mt-1.5 h-1.5 w-24 overflow-hidden bg-card border border-border/50">
                     <div
                       className="bg-primary h-full"
                       style={{ width: `${d.confidence}%` }}
@@ -113,7 +113,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
       )}
 
       <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="border border-primary bg-black rounded-none p-0 max-w-2xl font-mono text-primary">
+        <DialogContent className="border border-primary bg-card rounded-lg p-0 max-w-2xl text-primary">
           <div className="border-b border-primary bg-primary/10 px-3 py-1 flex items-center text-[10px] text-primary">
             <span>&gt;_ review_match.sh</span>
           </div>
@@ -127,7 +127,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
 
             {active && (
               <div className="grid gap-4 sm:grid-cols-2">
-                <figure className="overflow-hidden border border-border bg-black">
+                <figure className="overflow-hidden border border-border bg-card">
                   <img
                     src={original?.src ?? active.src}
                     alt="Your registered photo"
@@ -138,7 +138,7 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
                     &gt; SOURCE_IMAGE
                   </figcaption>
                 </figure>
-                <figure className="overflow-hidden border border-border bg-black">
+                <figure className="overflow-hidden border border-border bg-card">
                   <img
                     src={active.src}
                     alt={`Image found on ${active.platform}`}
@@ -170,14 +170,14 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
 
             {active && (
               <div className="mt-4 flex items-center gap-3 border border-border bg-primary/5 px-4 py-3">
-                <span className="text-2xl font-bold text-glow">{active.confidence}%</span>
+                <span className="text-2xl font-bold ">{active.confidence}%</span>
                 <p className="text-xs text-muted-foreground uppercase">// MATCH_PROBABILITY</p>
               </div>
             )}
 
             {/* AI Confirmation Steps Prompt */}
             {active && (
-              <div className="mt-6 border border-primary/30 bg-primary/5 p-4 rounded-none space-y-3">
+              <div className="mt-6 border border-primary/30 bg-primary/5 p-4 rounded-lg space-y-3">
                 <p className="text-xs font-bold text-primary uppercase">&gt; SECURITY_CHECK: IS_THIS_YOU_AND_DID_YOU_AUTHORIZE_THIS_USE?</p>
                 <p className="text-[11px] text-muted-foreground">
                   Confirming this is you will dismiss the match alert and whitelist this URL so it won't be flagged in future scans.

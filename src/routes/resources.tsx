@@ -25,7 +25,7 @@ function ResourcesPage() {
       title="Cyber Crime Resources"
       lead="If something has happened, here's a calm order to work through."
     >
-      <div className="space-y-6 font-mono">
+      <div className="space-y-6">
         <ol className="list-decimal space-y-4 pl-5 text-sm">
           <li>
             <span className="font-bold text-primary">Save the evidence:</span>

@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SiteFooter } from "@/components/SiteFooter";
-import { MatrixRain } from "@/components/MatrixRain";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -65,7 +64,7 @@ function Hero3DGraphic() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/50 to-transparent z-10" />
 
           {/* Scanning Effect */}
-          <div className="absolute left-0 right-0 h-0.5 bg-primary box-glow animate-[scan_3s_linear_infinite] z-20 shadow-[0_0_15px_rgba(16,185,129,1)]">
+          <div className="absolute left-0 right-0 h-0.5 bg-primary  animate-[scan_3s_linear_infinite] z-20 shadow-[0_0_15px_rgba(16,185,129,1)]">
             <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-primary/30 to-transparent translate-y-[-1px]" />
           </div>
         </div>
@@ -92,8 +91,7 @@ function Hero3DGraphic() {
 function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground relative">
-      <MatrixRain />
-      
+            
       <header className="fixed top-4 left-0 right-0 z-50 px-4">
         <nav className="mx-auto flex max-w-6xl items-center justify-between rounded-full border border-white/10 bg-background/60 px-6 py-3 backdrop-blur-xl shadow-2xl relative">
           <Link to="/" className="flex items-center gap-2 group">
@@ -111,7 +109,7 @@ function Landing() {
             <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex hover:text-white rounded-full">
               <Link to="/auth">Sign In</Link>
             </Button>
-            <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90 box-glow shadow-primary/20 rounded-full px-6">
+            <Button asChild size="sm" className="bg-primary text-primary-foreground hover:bg-primary/90  shadow-primary/20 rounded-full px-6">
               <Link to="/auth">Get Started</Link>
             </Button>
           </div>
@@ -123,7 +121,7 @@ function Landing() {
         <section className="relative overflow-hidden pt-8 md:pt-12 pb-16">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-16">
             <div className="animate-fade-up">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-6 box-glow shadow-primary/10 backdrop-blur-md">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-medium text-primary mb-6  shadow-primary/10 backdrop-blur-md">
                 <span className="flex h-2 w-2 rounded-full bg-primary animate-pulse" />
                 New — AI Deepfake Detection <ArrowRight className="size-3 ml-1" />
               </div>
@@ -134,7 +132,7 @@ function Landing() {
                 Advanced AI detection paired with guided cybercrime complaint filing. We scan the web for unauthorized use of your images and help you take them down.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-4">
-                <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-semibold box-glow shadow-primary/25 rounded-full">
+                <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 font-semibold  shadow-primary/25 rounded-full">
                   <Link to="/auth">Get Started Free</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="h-12 px-8 font-semibold border-border bg-card hover:bg-accent hover:text-white rounded-full backdrop-blur-sm">
@@ -191,8 +189,8 @@ function Landing() {
                   desc: "Review every match, decide what happens, and delete your data from our system anytime.",
                 },
               ].map((f, i) => (
-                <div key={i} className="group relative rounded-xl border border-green-500/50 bg-green-500/10 p-8 feature-card-hover">
-                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                <div key={i} className="group relative rounded-xl border border-primary/50 bg-primary/10 p-8 feature-card-hover">
+                  <div className="mb-6 flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-white shadow-md">
                     <f.icon className="size-6" />
                   </div>
                   <h3 className="mb-3 text-xl font-semibold text-white">{f.title}</h3>
@@ -217,8 +215,8 @@ function Landing() {
                 { title: "Get Notified", desc: "Our AI flags a match and shows you where it was found." },
                 { title: "Generate & Submit Complaint", desc: "We auto-fill a cybercrime complaint — you review and submit." },
               ].map((step, i) => (
-                <div key={i} className="flex gap-6 rounded-xl border border-green-500/50 bg-green-500/10 p-6 items-start feature-card-hover">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white font-bold shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                <div key={i} className="flex gap-6 rounded-xl border border-primary/50 bg-primary/10 p-6 items-start feature-card-hover">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white font-bold shadow-md">
                     {i + 1}
                   </div>
                   <div>
@@ -251,8 +249,8 @@ function Landing() {
                 { icon: Activity, title: "Complaint Tracking", desc: "Live status updates on removals" },
                 { icon: Sliders, title: "Data Control", desc: "One-click complete data wipe" },
               ].map((c, i) => (
-                <div key={i} className="flex items-center gap-4 rounded-xl border border-green-500/50 bg-green-500/10 p-5 feature-card-hover">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.5)]">
+                <div key={i} className="flex items-center gap-4 rounded-xl border border-primary/50 bg-primary/10 p-5 feature-card-hover">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white shadow-md">
                     <c.icon className="size-5" />
                   </div>
                   <div>
@@ -275,7 +273,7 @@ function Landing() {
             <p className="text-lg text-muted-foreground mb-10">
               Join thousands of users who have taken back control of their photos online.
             </p>
-            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-10 text-lg font-semibold box-glow shadow-primary/30">
+            <Button asChild size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-10 text-lg font-semibold  shadow-primary/30">
               <Link to="/auth">Start Your Free Scan</Link>
             </Button>
           </div>

@@ -45,7 +45,7 @@ function PhotosPage() {
   };
 
   return (
-    <div className="space-y-6 font-mono">
+    <div className="space-y-6">
       <div className="border-b border-border pb-4">
         <h1 className="text-2xl font-bold text-primary">&gt; MY_PHOTOS</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -53,7 +53,7 @@ function PhotosPage() {
         </p>
       </div>
 
-      <Card className="border border-border bg-black rounded-none">
+      <Card className="border border-border bg-card rounded-lg">
         <CardHeader className="border-b border-border/50 pb-4">
           <CardTitle className="text-sm font-bold text-primary">
             &gt; REGISTERED_PHOTOS [{photos.length}]
@@ -62,7 +62,7 @@ function PhotosPage() {
         <CardContent className="pt-6">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {photos.map((p) => (
-              <figure key={p.id} className="group relative overflow-hidden border border-border bg-black flex flex-col justify-between h-full">
+              <figure key={p.id} className="group relative overflow-hidden border border-border bg-card flex flex-col justify-between h-full">
                 <div className="relative aspect-square w-full overflow-hidden">
                   <img
                     src={p.src}
@@ -73,7 +73,7 @@ function PhotosPage() {
                   <Button
                     size="icon"
                     variant="destructive"
-                    className="absolute right-2 top-2 size-8 opacity-0 transition-opacity group-hover:opacity-100 rounded-none border border-destructive"
+                    className="absolute right-2 top-2 size-8 opacity-0 transition-opacity group-hover:opacity-100 rounded-lg border border-destructive"
                     aria-label={`Remove ${p.name}`}
                     onClick={() => {
                       removePhoto(p.id);
@@ -91,7 +91,7 @@ function PhotosPage() {
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="h-7 w-full border border-primary/30 rounded-none font-mono text-[9px] hover:bg-primary/15 uppercase flex items-center justify-center gap-1"
+                    className="h-7 w-full border border-primary/30 rounded-lg text-[9px] hover:bg-primary/15 uppercase flex items-center justify-center gap-1"
                     onClick={() => handleScan(p.id)}
                     disabled={scanningId === p.id}
                   >
@@ -110,7 +110,7 @@ function PhotosPage() {
         </CardContent>
       </Card>
 
-      <Card className="border border-border bg-black rounded-none">
+      <Card className="border border-border bg-card rounded-lg">
         <CardHeader className="border-b border-border/50 pb-4">
           <CardTitle className="text-sm font-bold text-primary">&gt; ADD_MORE_PHOTOS</CardTitle>
         </CardHeader>

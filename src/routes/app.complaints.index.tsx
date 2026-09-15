@@ -48,7 +48,7 @@ function ComplaintsPage() {
   };
 
   return (
-    <div className="space-y-6 font-mono">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-border pb-4">
         <div>
           <h1 className="text-2xl font-bold text-primary">&gt; COMPLAINTS_REGISTRY</h1>
@@ -70,7 +70,7 @@ function ComplaintsPage() {
           const isEditing = editModes[c.id] || !hasPortalRef;
 
           return (
-            <Card key={c.id} className="border border-border bg-black rounded-none">
+            <Card key={c.id} className="border border-border bg-card rounded-lg">
               <CardContent className="space-y-5 pt-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
@@ -98,7 +98,7 @@ function ComplaintsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="h-6 text-[9px] text-primary hover:bg-primary/10 rounded-none border border-primary/20"
+                      className="h-6 text-[9px] text-primary hover:bg-primary/10 rounded-lg border border-primary/20"
                       onClick={() => {
                         setRefInputs((prev) => ({ ...prev, [c.id]: c.referenceId || "" }));
                         setEditModes((prev) => ({ ...prev, [c.id]: true }));
@@ -127,11 +127,11 @@ function ComplaintsPage() {
                         placeholder="Paste cybercrime.gov.in Reference #"
                         value={refInputs[c.id] ?? ""}
                         onChange={(e) => setRefInputs((prev) => ({ ...prev, [c.id]: e.target.value }))}
-                        className="h-8 font-mono text-xs bg-black text-primary border-primary/20 rounded-none"
+                        className="h-8 text-xs bg-card text-primary border-primary/20 rounded-lg"
                       />
                       <Button
                         size="sm"
-                        className="h-8 text-[9px] rounded-none px-4"
+                        className="h-8 text-[9px] rounded-lg px-4"
                         onClick={() => handleSaveRef(c.id)}
                       >
                         SAVE
@@ -145,7 +145,7 @@ function ComplaintsPage() {
         })}
         
         {complaints.length === 0 && (
-          <Card className="border border-border bg-black rounded-none">
+          <Card className="border border-border bg-card rounded-lg">
             <CardContent className="py-12 text-center text-sm font-bold text-muted-foreground">
               &gt; NO_ACTIVE_COMPLAINTS
             </CardContent>

@@ -567,7 +567,7 @@ function NewComplaint() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-7 text-[10px] uppercase font-mono border-primary/30 text-primary hover:bg-primary/10 flex items-center gap-1"
+                  className="h-7 text-[10px] uppercase border-primary/30 text-primary hover:bg-primary/10 flex items-center gap-1"
                   onClick={handleExternalReport}
                 >
                   Report on {detection.platform} <ExternalLink className="size-2.5" />
@@ -576,7 +576,7 @@ function NewComplaint() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-7 text-[10px] uppercase font-mono"
+                  className="h-7 text-[10px] uppercase"
                   onClick={() => {
                     navigator.clipboard.writeText(description);
                     toast.success("> STATEMENT_COPIED_TO_CLIPBOARD");
@@ -591,7 +591,7 @@ function NewComplaint() {
               rows={8}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="font-mono text-xs bg-black text-primary border-primary/20"
+              className="text-xs bg-card text-primary border-primary/20"
             />
             <p className="text-xs text-muted-foreground">// You can customize the auto-filled statement above before copying or submitting.</p>
           </div>

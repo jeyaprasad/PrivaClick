@@ -9,6 +9,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { usePrivaclick } from "@/lib/store";
+import { logoutServer } from "@/lib/supabase-fns";
 
 export const Route = createFileRoute("/app")({
   component: AppLayout,
@@ -60,9 +61,9 @@ function AppLayout() {
           </div>
           <a
             href="/auth"
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault();
-              localStorage.removeItem("privaclick_email");
+              await logoutServer();
               window.location.href = "/auth";
             }}
             className="flex items-center gap-2.5 px-3 py-2 text-sm text-destructive hover:bg-destructive hover:text-black uppercase font-bold transition-colors cursor-pointer"

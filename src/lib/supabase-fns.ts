@@ -1,4 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
+import { SignJWT, jwtVerify } from "jose";
 import { supabase } from "./supabase.server";
 import { z } from "zod";
 import nodemailer from "nodemailer";
@@ -20,11 +22,31 @@ const transporter = (smtpUser && smtpPass)
 // Local fallback memory store for OTPs when Supabase is unreachable
 const localOtpStore = new Map<string, { code: string; expiresAt: Date }>();
 
+
+// Session Secret for JWT
+const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET || "default_fallback_secret_for_dev_min_32_chars");
+
+async function verifySessionServer() {
+  const token = getCookie("privaclick_session");
+  if (!token) return null;
+  try {
+    const { payload } = await jwtVerify(token, SESSION_SECRET);
+    return payload['userId'] as string;
+  } catch (e) {
+    return null;
+  }
+}
+
+export const logoutServer = createServerFn({ method: "POST" }).handler(async () => {
+  deleteCookie("privaclick_session", { path: "/" });
+  return { success: true };
+});
+
 // Fetch all database records
 export const fetchStoreData = createServerFn({ method: "GET" })
-  .validator(z.object({ email: z.string().email().optional() }).optional())
-  .handler(async ({ data }) => {
-    const email = data?.email;
+  .handler(async () => {
+    const authUserId = await verifySessionServer();
+    
     let userData = null;
     let photosData: any[] = [];
     let detectionsData: any[] = [];
@@ -34,8 +56,8 @@ export const fetchStoreData = createServerFn({ method: "GET" })
     try {
       // 1. Fetch user by email or default u1
       let query = supabase.from("users").select("*");
-      if (email) {
-        query = query.eq("email", email);
+      if (authUserId) {
+        query = query.eq("id", authUserId);
       } else {
         query = query.eq("id", "u1");
       }
@@ -120,8 +142,8 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         verifiedOn: userData.verified_on || "12 Jun 2026"
       } : {
         id: "u1",
-        name: email ? email.split("@")[0].toUpperCase() : "Ananya Sharma",
-        email: email || "ananya@example.com",
+        name: "Ananya Sharma",
+        email: "ananya@example.com",
         phone: "+91 98765 43210",
         maskedId: "XXXX XXXX 4821",
         verifiedOn: "12 Jun 2026",
@@ -167,7 +189,6 @@ export const fetchStoreData = createServerFn({ method: "GET" })
 // Insert photos
 export const addPhotosServer = createServerFn({ method: "POST" })
   .validator(z.object({
-    userId: z.string(),
     photos: z.array(z.object({
       id: z.string(),
       name: z.string(),
@@ -176,9 +197,11 @@ export const addPhotosServer = createServerFn({ method: "POST" })
     }))
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     const records = data.photos.map(p => ({
       id: p.id,
-      user_id: data.userId,
+      user_id: authUserId,
       storage_url: p.src,
       added_on: p.addedOn,
       name: p.name
@@ -204,6 +227,8 @@ export const addPhotosServer = createServerFn({ method: "POST" })
 export const removePhotoServer = createServerFn({ method: "POST" })
   .validator(z.string())
   .handler(async ({ data: photoId }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       const { error } = await supabase
         .from("photos")
@@ -226,6 +251,8 @@ export const setDetectionStatusServer = createServerFn({ method: "POST" })
     status: z.string()
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       const { error } = await supabase
         .from("detections")
@@ -253,6 +280,8 @@ export const fileComplaintServer = createServerFn({ method: "POST" })
     referenceId: z.string()
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       // 1. Insert complaint
       const { error: complaintError } = await supabase
@@ -297,6 +326,8 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
     })
   ]))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     let photoId = "";
     let demoMode = true; // Default to true for resilient presentations
 
@@ -793,6 +824,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
     } catch (e) {}
 
     // Ensure user record is registered in users table
+    let finalUserId = "u1";
     try {
       const { data: existingUser } = await supabase
         .from("users")
@@ -801,9 +833,9 @@ export const verifyOtp = createServerFn({ method: "POST" })
         .maybeSingle();
 
       if (!existingUser) {
-        const userId = `u-${Date.now()}`;
+        finalUserId = `u-${Date.now()}`;
         await supabase.from("users").insert({
-          id: userId,
+          id: finalUserId,
           name: email.split("@")[0].toUpperCase(),
           email: email,
           phone: "+91 98765 43210",
@@ -811,10 +843,26 @@ export const verifyOtp = createServerFn({ method: "POST" })
           verified_on: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
           known_domains: "example.com"
         });
+      } else {
+        finalUserId = existingUser.id;
       }
     } catch (err) {
       console.warn("Failed to register user to database, proceeding locally.", err);
     }
+
+    const jwt = await new SignJWT({ userId: finalUserId })
+      .setProtectedHeader({ alg: "HS256" })
+      .setIssuedAt()
+      .setExpirationTime("7d")
+      .sign(SESSION_SECRET);
+
+    setCookie("privaclick_session", jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+      sameSite: "lax"
+    });
 
     return { success: true };
   });
@@ -822,7 +870,6 @@ export const verifyOtp = createServerFn({ method: "POST" })
 // Update notification configurations in database
 export const updateNotificationsServer = createServerFn({ method: "POST" })
   .validator(z.object({
-    userId: z.string(),
     notifications: z.object({
       email: z.boolean(),
       sms: z.boolean(),
@@ -830,6 +877,8 @@ export const updateNotificationsServer = createServerFn({ method: "POST" })
     })
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       const { error } = await supabase
         .from("users")
@@ -838,7 +887,7 @@ export const updateNotificationsServer = createServerFn({ method: "POST" })
           sms_notifications: data.notifications.sms,
           weekly_notifications: data.notifications.weekly
         })
-        .eq("id", data.userId);
+        .eq("id", authUserId);
 
       if (error) {
         console.error("Error updating user notifications settings:", error);
@@ -857,6 +906,8 @@ export const updateComplaintRefServer = createServerFn({ method: "POST" })
     referenceId: z.string()
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       const { error } = await supabase
         .from("complaints")
@@ -876,11 +927,12 @@ export const updateComplaintRefServer = createServerFn({ method: "POST" })
 // Set detection status to Dismissed and store URL in known_safe_urls
 export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "POST" })
   .validator(z.object({
-    userId: z.string(),
     id: z.string(),
     url: z.string()
   }))
   .handler(async ({ data }) => {
+    const authUserId = await verifySessionServer();
+    if (!authUserId) throw new Error("Unauthorized");
     try {
       // 1. Update detection status to 'Dismissed'
       const { error: updateError } = await supabase
@@ -896,7 +948,7 @@ export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "PO
       const { error: safeError } = await supabase
         .from("known_safe_urls")
         .insert({
-          user_id: data.userId,
+          user_id: authUserId,
           url: data.url
         });
 

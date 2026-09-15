@@ -82,8 +82,7 @@ function AuthPage() {
     try {
       const res = await verifyOtp({ data: { email, code: otp } });
       if (res.success) {
-        localStorage.setItem("privaclick_email", email);
-        await loadUserData(email);
+        await loadUserData();
         toast.success(mode === "login" ? "Welcome back." : "> VERIFIED: ACCOUNT_ACTIVATED");
         navigate({ to: mode === "login" ? "/app" : "/onboarding" });
       } else {

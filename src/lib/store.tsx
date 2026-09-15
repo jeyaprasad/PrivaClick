@@ -44,7 +44,7 @@ type Store = {
   scanPhotoForMatches: (photoId: string) => Promise<Detection[]>;
   updateComplaintRef: (id: string, referenceId: string) => Promise<void>;
   dismissDetectionAndSaveSafeUrl: (id: string, url: string) => Promise<void>;
-  loadUserData: (email: string) => Promise<void>;
+  loadUserData: () => Promise<void>;
   triggerJuryDemo: () => Promise<void>;
 };
 
@@ -67,9 +67,9 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
   const [notifications, setNotifications] = useState({ email: true, sms: false, weekly: true });
   const [lastScanned, setLastScanned] = useState<string | null>(null);
 
-  const loadUserData = useCallback(async (email: string) => {
+  const loadUserData = useCallback(async () => {
     try {
-      const data = await fetchStoreData({ data: { email } });
+      const data = await fetchStoreData();
       if (data.user) setUser(data.user);
       if (data.photos) setPhotos(data.photos);
       if (data.detections) setDetections(data.detections);
@@ -84,9 +84,8 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
   // Fetch initial data from Supabase, scoped to logged-in user if available
   useEffect(() => {
     let active = true;
-    const savedEmail = typeof window !== "undefined" ? localStorage.getItem("privaclick_email") : null;
 
-    fetchStoreData({ data: { email: savedEmail || undefined } })
+    fetchStoreData()
       .then((data) => {
         if (!active) return;
         if (data.user) setUser(data.user);
@@ -192,7 +191,6 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
     // Persist changes to Supabase in background, associated to active user
     addPhotosServer({
       data: {
-        userId: user.id,
         photos: newPhotos
       }
     }).catch((err) => {
@@ -230,7 +228,6 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
       
       updateNotificationsServer({
         data: {
-          userId: user.id,
           notifications: next
         }
       }).catch((err) => {
@@ -321,7 +318,6 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
     try {
       await dismissDetectionAndSaveSafeUrlServer({
         data: {
-          userId: user.id,
           id,
           url
         }

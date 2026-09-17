@@ -1,3 +1,4 @@
+import { logError, logInfo } from "./logger";
 import { createServerFn } from "@tanstack/react-start";
 import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
 import { SignJWT, jwtVerify } from "jose";
@@ -85,7 +86,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         userData = dbUser;
       }
     } catch (e) {
-      console.warn("Failed to fetch user from Supabase, using mock fallback:", e);
+      logError("Failed to fetch user from Supabase, using mock fallback:", e);
     }
 
     const userId = userData?.id || "u1";
@@ -99,7 +100,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         .order("added_on", { ascending: false });
       if (!error && data) photosData = data;
     } catch (e) {
-      console.warn("Failed to fetch photos from Supabase, using local fallback:", e);
+      logError("Failed to fetch photos from Supabase, using local fallback:", e);
     }
 
     const photoIds = photosData.map(p => p.id);
@@ -115,7 +116,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         if (!error && data) detectionsData = data;
       }
     } catch (e) {
-      console.warn("Failed to fetch detections from Supabase, using local fallback:", e);
+      logError("Failed to fetch detections from Supabase, using local fallback:", e);
     }
 
     const detectionIds = detectionsData.map(d => d.id);
@@ -131,7 +132,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         if (!error && data) complaintsData = data;
       }
     } catch (e) {
-      console.warn("Failed to fetch complaints from Supabase, using local fallback:", e);
+      logError("Failed to fetch complaints from Supabase, using local fallback:", e);
     }
 
     try {
@@ -152,7 +153,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
         }
       }
     } catch (e) {
-      console.warn("Failed to fetch scan history from Supabase:", e);
+      logError("Failed to fetch scan history from Supabase:", e);
     }
       
     return {
@@ -238,11 +239,11 @@ export const addPhotosServer = createServerFn({ method: "POST" })
         .select();
 
       if (error) {
-        console.error("Error inserting photos:", error);
+        logError("Error inserting photos:", error);
       }
       return inserted;
     } catch (err) {
-      console.warn("Supabase offline, photos stored in local cache.", err);
+      logError("Supabase offline, photos stored in local cache.", err);
       return [];
     }
   });
@@ -260,10 +261,10 @@ export const removePhotoServer = createServerFn({ method: "POST" })
         .eq("id", photoId);
 
       if (error) {
-        console.error("Error deleting photo:", error);
+        logError("Error deleting photo:", error);
       }
     } catch (err) {
-      console.warn("Supabase offline, photo deleted from local cache.", err);
+      logError("Supabase offline, photo deleted from local cache.", err);
     }
     return { success: true };
   });
@@ -284,10 +285,10 @@ export const setDetectionStatusServer = createServerFn({ method: "POST" })
         .eq("id", data.id);
 
       if (error) {
-        console.error("Error updating detection status:", error);
+        logError("Error updating detection status:", error);
       }
     } catch (err) {
-      console.warn("Supabase offline, detection status updated in local cache.", err);
+      logError("Supabase offline, detection status updated in local cache.", err);
     }
     return { success: true };
   });
@@ -321,7 +322,7 @@ export const fileComplaintServer = createServerFn({ method: "POST" })
         });
 
       if (complaintError) {
-        console.error("Error creating complaint:", complaintError);
+        logError("Error creating complaint:", complaintError);
       }
 
       // 2. Update detection status to 'Complaint Filed'
@@ -331,10 +332,10 @@ export const fileComplaintServer = createServerFn({ method: "POST" })
         .eq("id", data.detectionId);
 
       if (detectionError) {
-        console.error("Error updating detection status for complaint:", detectionError);
+        logError("Error updating detection status for complaint:", detectionError);
       }
     } catch (err) {
-      console.warn("Supabase offline, complaint stored in local cache.", err);
+      logError("Supabase offline, complaint stored in local cache.", err);
     }
 
     return { success: true };
@@ -372,7 +373,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
         .single();
       if (!error) photo = dbPhoto;
     } catch (err) {
-      console.warn("Supabase photo fetch failed, using fallback.", err);
+      logError("Supabase photo fetch failed, using fallback.", err);
     }
 
     if (!photo) {
@@ -395,7 +396,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
         .single();
       if (!error) user = dbUser;
     } catch (err) {
-      console.warn("Supabase user fetch failed, using fallback.", err);
+      logError("Supabase user fetch failed, using fallback.", err);
     }
 
     const knownDomainsList = user?.known_domains
@@ -450,7 +451,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
 
           const responseObj = resData.responses?.[0] || {};
           if (responseObj.error) {
-            console.error("[Google Vision API] API Error Field:", JSON.stringify(responseObj.error, null, 2));
+            logError("[Google Vision API] API Error Field:", JSON.stringify(responseObj.error, null, 2));
           }
 
           const webDetection = responseObj.webDetection;
@@ -511,10 +512,10 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
           console.log(`[Google Vision API] Completed successfully. Found ${webDetectionResults.length} total unique matches across all categories.`);
         } else {
           const errText = await response.text();
-          console.error(`[Google Vision API] Request failed. Response body: ${errText}`);
+          logError(`[Google Vision API] Request failed. Response body: ${errText}`);
         }
       } catch (err: any) {
-        console.warn("[Google Vision API] Call failed or timed out:", err.message || err);
+        logError("[Google Vision API] Call failed or timed out:", err.message || err);
       }
     }
 
@@ -537,7 +538,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
           throw new Error(cacheError?.message || "No pre-cached demo matches in table");
         }
       } catch (err) {
-        console.warn("Failed to load cached matches from table, using local memory fallback:", err);
+        logError("Failed to load cached matches from table, using local memory fallback:", err);
         // Memory fallback for demo reliability
         if (photoId === "p4" || (photo.storage_url && photo.storage_url.includes("photo-1500648767791-00dcc994a43e"))) {
           webDetectionResults = [
@@ -654,7 +655,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       try {
         await (await getAuthSupabase()).from("detections").insert(newRow);
       } catch (err) {
-        console.warn("Supabase offline, detection added locally.", err);
+        logError("Supabase offline, detection added locally.", err);
       }
 
       newDetections.push({
@@ -708,10 +709,10 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
           });
           console.log(`Matching alert email successfully sent to ${emailTarget}`);
         } catch (err) {
-          console.error("Failed to send matching alert email:", err);
+          logError("Failed to send matching alert email:", err);
         }
       } else {
-        console.warn(`
+        logError(`
 ============================================================
 [SMTP ALERT LOG] SMTP NOT CONFIG - WOULD SEND MATCH ALERT TO ${emailTarget}
 MATCHES FOUND: ${newDetections.length}
@@ -722,7 +723,23 @@ LINK: ${detectionsLink}
       }
     }
 
-    return newDetections;
+    // 4. Log to scan_history
+      try {
+        const { error: histError } = await (await getAuthSupabase()).from("scan_history").insert({
+          photo_id: photoId,
+          scanned_at: new Date().toISOString(),
+          new_detections_count: newDetections.length,
+          status: "Success",
+          log_message: "Scan completed successfully."
+        });
+        if (histError) {
+          logError("Error inserting scan_history", histError);
+        }
+      } catch (err) {
+        logError("Failed to log to scan_history", err);
+      }
+      
+      return newDetections;
   });
 
 // Send OTP to user's email
@@ -747,7 +764,7 @@ export const sendOtp = createServerFn({ method: "POST" })
         recentRequests = data;
       }
     } catch (e) {
-      console.warn("Could not fetch rate limit data", e);
+      logError("Could not fetch rate limit data", e);
     }
 
     if (recentRequests.length >= 3) {
@@ -760,7 +777,7 @@ export const sendOtp = createServerFn({ method: "POST" })
     try {
       await (await getAuthSupabase()).from("otp_requests").insert({ email });
     } catch (e) {
-      console.warn("Could not log otp request", e);
+      logError("Could not log otp request", e);
     }
 
     
@@ -782,10 +799,10 @@ export const sendOtp = createServerFn({ method: "POST" })
         }, { onConflict: "email" });
 
       if (error) {
-        console.warn("Supabase save failed. Using local memory backup.", error);
+        logError("Supabase save failed. Using local memory backup.", error);
       }
     } catch (err) {
-      console.warn("Supabase unreachable. Falling back to local memory store.", err);
+      logError("Supabase unreachable. Falling back to local memory store.", err);
     }
 
     if (transporter) {
@@ -808,10 +825,10 @@ export const sendOtp = createServerFn({ method: "POST" })
         });
         console.log(`Successfully emailed OTP code to ${email}`);
       } catch (err) {
-        console.error("Error sending OTP email:", err);
+        logError("Error sending OTP email:", err);
       }
     } else {
-      console.warn(`
+      logError(`
 ============================================================
 [SMTP NOT CONFIG] SMTP_USER/SMTP_PASS are not configured.
 Simulating OTP code generation.
@@ -844,7 +861,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
         record = { email: dbData.email, code: dbData.code, expires_at: dbData.expires_at };
       }
     } catch (err) {
-      console.warn("Supabase query failed, checking memory fallback.", err);
+      logError("Supabase query failed, checking memory fallback.", err);
     }
 
     if (!record) {
@@ -904,7 +921,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
         finalUserId = existingUser.id;
       }
     } catch (err) {
-      console.warn("Failed to register user to database, proceeding locally.", err);
+      logError("Failed to register user to database, proceeding locally.", err);
     }
 
     const jwt = await new SignJWT({ userId: finalUserId })
@@ -947,10 +964,10 @@ export const updateNotificationsServer = createServerFn({ method: "POST" })
         .eq("id", authUserId);
 
       if (error) {
-        console.error("Error updating user notifications settings:", error);
+        logError("Error updating user notifications settings:", error);
       }
     } catch (err) {
-      console.warn("Supabase offline, notifications settings kept locally.", err);
+      logError("Supabase offline, notifications settings kept locally.", err);
     }
 
     return { success: true };
@@ -972,10 +989,10 @@ export const updateComplaintRefServer = createServerFn({ method: "POST" })
         .eq("id", data.id);
 
       if (error) {
-        console.error("Error updating complaint reference ID:", error);
+        logError("Error updating complaint reference ID:", error);
       }
     } catch (err) {
-      console.warn("Supabase offline, complaint reference ID kept locally.", err);
+      logError("Supabase offline, complaint reference ID kept locally.", err);
     }
 
     return { success: true };
@@ -998,7 +1015,7 @@ export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "PO
         .eq("id", data.id);
 
       if (updateError) {
-        console.error("Error updating detection status to Dismissed:", updateError);
+        logError("Error updating detection status to Dismissed:", updateError);
       }
 
       // 2. Insert URL into known_safe_urls
@@ -1010,10 +1027,10 @@ export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "PO
         });
 
       if (safeError && safeError.code !== "23505") { // 23505 is unique violation code
-        console.error("Error inserting safe URL:", safeError);
+        logError("Error inserting safe URL:", safeError);
       }
     } catch (err) {
-      console.warn("Supabase offline, safe URL whitelisting completed locally.", err);
+      logError("Supabase offline, safe URL whitelisting completed locally.", err);
     }
 
     return { success: true };

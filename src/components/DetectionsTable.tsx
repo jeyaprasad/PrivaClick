@@ -3,30 +3,11 @@ import { useNavigate } from "@tanstack/react-router";
 import { ExternalLink, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { StatusPill, toneForStatus } from "@/components/StatusPill";
 import { usePrivaclick } from "@/lib/store";
-import type { Detection } from "@/lib/mock-data";
 
 export function DetectionsTable({ limit, statusFilter }: { limit?: number; statusFilter?: string }) {
   const navigate = useNavigate();
-  const { detections, photos, setDetectionStatus, dismissDetectionAndSaveSafeUrl } = usePrivaclick();
-  const [active, setActive] = useState<Detection | null>(null);
+  const { detections, setDetectionStatus, dismissDetectionAndSaveSafeUrl } = usePrivaclick();
 
   // Filter detections by status if requested
   const filtered = statusFilter 
@@ -34,194 +15,116 @@ export function DetectionsTable({ limit, statusFilter }: { limit?: number; statu
     : detections;
 
   const rows = limit ? filtered.slice(0, limit) : filtered;
-  const original = active ? photos.find((p) => p.id === active.photoId) : undefined;
 
   return (
-    <>
+    <div className="space-y-4">
       {rows.length === 0 ? (
-        <div className="border border-border bg-card px-6 py-14 text-center text-primary">
-          <ShieldCheck className="animate-shield-pulse mx-auto size-10 text-primary" />
-          <p className="mt-4 text-sm font-bold">&gt; NO_MATCHES_FOUND</p>
+        <div className="border border-border bg-card px-6 py-14 text-center rounded-xl shadow-sm">
+          <ShieldCheck className="mx-auto size-10 text-muted-foreground opacity-50" />
+          <p className="mt-4 text-sm font-semibold text-foreground">No matches found</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            // We're actively watching. You'll hear from us the moment something turns up.
+            We are actively monitoring. You will be notified the moment something turns up.
           </p>
         </div>
       ) : (
-      <div className="border border-border bg-card overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="border-b border-border hover:bg-transparent">
-              <TableHead className="w-20 text-primary font-bold">PHOTO</TableHead>
-              <TableHead className="text-primary font-bold">FOUND_ON</TableHead>
-              <TableHead className="text-primary font-bold">MATCH</TableHead>
-              <TableHead className="text-primary font-bold">DATE</TableHead>
-              <TableHead className="text-primary font-bold">STATUS</TableHead>
-              <TableHead className="text-right text-primary font-bold">ACTION</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((d) => (
-              <TableRow key={d.id} className="border-b border-border/50 hover:bg-primary/5">
-                <TableCell>
-                  <img
-                    src={d.src}
-                    alt="Detected match thumbnail"
-                    loading="lazy"
-                    className="size-12 rounded-lg object-cover border border-border"
-                  />
-                </TableCell>
-                <TableCell>
-                  <p className="font-bold text-primary uppercase">{d.platform}</p>
-                  <p className="max-w-52 truncate text-[10px] text-muted-foreground">{d.sourceUrl}</p>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm font-bold text-primary">{d.confidence}%</span>
-                    {d.matchType && (
-                      <span className={`px-1 py-0.5 text-[8px] font-bold uppercase tracking-wider ${
-                        d.matchType === "exact"
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                          : d.matchType === "partial"
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                      }`}>
-                        {d.matchType}
-                      </span>
-                    )}
-                  </div>
-                  <div className="mt-1.5 h-1.5 w-24 overflow-hidden bg-card border border-border/50">
-                    <div
-                      className="bg-primary h-full"
-                      style={{ width: `${d.confidence}%` }}
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="text-xs text-muted-foreground">{d.foundOn}</TableCell>
-                <TableCell>
-                  <StatusPill label={d.status} tone={toneForStatus(d.status)} />
-                </TableCell>
-                <TableCell className="text-right">
-                  <Button size="sm" onClick={() => setActive(d)}>
-                    &gt; REVIEW
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-      )}
-
-      <Dialog open={!!active} onOpenChange={(o) => !o && setActive(null)}>
-        <DialogContent className="border border-primary bg-card rounded-lg p-0 max-w-2xl text-primary">
-          <div className="border-b border-primary bg-primary/10 px-3 py-1 flex items-center text-[10px] text-primary">
-            <span>&gt;_ review_match.sh</span>
-          </div>
-          <div className="p-6">
-            <DialogHeader className="mb-6">
-              <DialogTitle className="text-lg font-bold uppercase">&gt; DOES_THIS_LOOK_LIKE_YOU?</DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                // Compare your registered photo with what we found. Only you decide what happens next.
-              </DialogDescription>
-            </DialogHeader>
-
-            {active && (
-              <div className="grid gap-4 sm:grid-cols-2">
-                <figure className="overflow-hidden border border-border bg-card">
-                  <img
-                    src={original?.src ?? active.src}
-                    alt="Your registered photo"
-                    loading="lazy"
-                    className="aspect-square w-full object-cover grayscale opacity-80"
-                  />
-                  <figcaption className="border-t border-border bg-primary/5 px-3 py-2 text-[10px] text-primary font-bold">
-                    &gt; SOURCE_IMAGE
-                  </figcaption>
-                </figure>
-                <figure className="overflow-hidden border border-border bg-card">
-                  <img
-                    src={active.src}
-                    alt={`Image found on ${active.platform}`}
-                    loading="lazy"
-                    className="aspect-square w-full object-cover"
-                  />
-                  <figcaption className="space-y-1 border-t border-border bg-primary/5 px-3 py-2 text-[10px] text-primary">
-                    <div className="font-bold flex items-center justify-between">
-                      <span>&gt; TARGET: {active.platform.toUpperCase()} · CONFIDENCE: {active.confidence}%</span>
-                      {active.matchType && (
-                        <span className={`px-1 text-[8px] font-bold uppercase tracking-wider ${
-                          active.matchType === "exact"
-                            ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                            : active.matchType === "partial"
-                            ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                            : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                        }`}>
-                          {active.matchType}
-                        </span>
-                      )}
-                    </div>
-                    <p className="flex items-center gap-1 truncate opacity-70">
-                      <ExternalLink className="size-3" /> {active.sourceUrl}
-                    </p>
-                  </figcaption>
-                </figure>
+        <div className="flex flex-col gap-4">
+          {rows.map((d) => (
+            <div key={d.id} className="flex flex-col sm:flex-row gap-4 p-4 border border-border bg-card rounded-xl shadow-sm items-start sm:items-center transition-all hover:shadow-md">
+              
+              {/* Photo Thumbnail */}
+              <div className="shrink-0">
+                <img
+                  src={d.src}
+                  alt="Detected match"
+                  loading="lazy"
+                  className="size-16 rounded-md object-cover border border-border"
+                />
               </div>
-            )}
-
-            {active && (
-              <div className="mt-4 flex items-center gap-3 border border-border bg-primary/5 px-4 py-3">
-                <span className="text-2xl font-bold ">{active.confidence}%</span>
-                <p className="text-xs text-muted-foreground uppercase">// MATCH_PROBABILITY</p>
-              </div>
-            )}
-
-            {/* AI Confirmation Steps Prompt */}
-            {active && (
-              <div className="mt-6 border border-primary/30 bg-primary/5 p-4 rounded-lg space-y-3">
-                <p className="text-xs font-bold text-primary uppercase">&gt; SECURITY_CHECK: IS_THIS_YOU_AND_DID_YOU_AUTHORIZE_THIS_USE?</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Confirming this is you will dismiss the match alert and whitelist this URL so it won't be flagged in future scans.
-                </p>
-                <div className="flex gap-2">
-                  <Button
-                    size="sm"
-                    className="text-[10px] h-8 bg-primary/20 hover:bg-primary/30 border border-primary text-primary"
-                    onClick={async () => {
-                      if (!active) return;
-                      await dismissDetectionAndSaveSafeUrl(active.id, active.sourceUrl);
-                      setActive(null);
-                      toast.success("> MATCH_DISMISSED: URL_WHITELISTED");
-                    }}
-                  >
-                    Yes, this is fine
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    className="text-[10px] h-8"
-                    onClick={async () => {
-                      if (!active) return;
-                      const id = active.id;
-                      await setDetectionStatus(id, "Confirmed Unauthorized");
-                      setActive(null);
-                      navigate({ to: "/app/complaints/new", search: { detection: id } });
-                      toast.success("> MATCH_CONFIRMED_UNAUTHORIZED: INITIATING_TAKEDOWN");
-                    }}
-                  >
-                    No, I didn't authorize this
-                  </Button>
+              
+              {/* Info Block */}
+              <div className="flex-1 min-w-0 flex flex-col gap-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-sm text-foreground bg-muted px-2 py-0.5 rounded-md border border-border">
+                    {d.platform}
+                  </span>
+                  
+                  {d.matchType && (
+                    <span className="text-xs font-medium text-muted-foreground bg-muted/50 border border-border px-2 py-0.5 rounded-md">
+                      {d.matchType} match
+                    </span>
+                  )}
+                  
+                  <span className="text-xs text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-md border border-border">
+                    {d.confidence}% Confidence
+                  </span>
                 </div>
+                
+                <a 
+                  href={d.sourceUrl} 
+                  target="_blank" 
+                  rel="noreferrer" 
+                  className="text-sm font-mono text-primary hover:underline flex items-center gap-1.5 truncate w-fit max-w-[240px] sm:max-w-sm"
+                >
+                  <ExternalLink className="size-3.5 shrink-0" />
+                  <span className="truncate">{d.sourceUrl}</span>
+                </a>
               </div>
-            )}
+              
+              {/* Status & Actions Block */}
+              <div className="flex flex-col sm:items-end gap-3 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                
+                {/* Colored Status Pill */}
+                {d.status === "Needs Review" && (
+                  <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-destructive/10 text-destructive border border-destructive/20">
+                    {d.status}
+                  </span>
+                )}
+                {(d.status === "Complaint Filed" || d.status === "Confirmed Unauthorized") && (
+                  <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-primary/10 text-primary border border-primary/20">
+                    {d.status}
+                  </span>
+                )}
+                {(d.status === "Dismissed" || d.status === "Action Taken") && (
+                  <span className="px-2.5 py-1 text-xs font-semibold rounded-full bg-accent/10 text-accent border border-accent/20">
+                    {d.status}
+                  </span>
+                )}
 
-            <DialogFooter className="mt-6">
-              <Button variant="ghost" onClick={() => setActive(null)}>
-                &gt; CLOSE
-              </Button>
-            </DialogFooter>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+                {/* Confirm / Dismiss Buttons inline */}
+                {d.status === "Needs Review" ? (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-8 text-xs border-border text-foreground hover:bg-muted"
+                      onClick={async () => {
+                        await dismissDetectionAndSaveSafeUrl(d.id, d.sourceUrl);
+                        toast.success("Match dismissed and URL whitelisted.");
+                      }}
+                    >
+                      This is fine
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="h-8 text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm"
+                      onClick={async () => {
+                        await setDetectionStatus(d.id, "Confirmed Unauthorized");
+                        navigate({ to: "/app/complaints/new", search: { detection: d.id } });
+                        toast.success("Initiating takedown process...");
+                      }}
+                    >
+                      Not authorized
+                    </Button>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">Found on {d.foundOn}</span>
+                )}
+              </div>
+              
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

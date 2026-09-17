@@ -59,7 +59,15 @@ function AuthPage() {
 
     setLoading(true);
     try {
-      await sendOtp({ data: { email } });
+      const res = await sendOtp({ data: { email } });
+      if (res && res.success === false) {
+        if (res.reason === "email_not_configured") {
+          toast.error("Server Error: Email is not configured. Cannot send OTP.");
+        } else {
+          toast.error("Failed to send verification email. Please try again later.");
+        }
+        return;
+      }
       setStage("otp");
       setCooldown(30);
       toast.success(`OTP sent to ${email}`);
@@ -240,10 +248,18 @@ function AuthPage() {
                   if (cooldown > 0) return;
                   setLoading(true);
                   try {
-                    await sendOtp({ data: { email } });
+                    const res = await sendOtp({ data: { email } });
+                    if (res && res.success === false) {
+                      if (res.reason === "email_not_configured") {
+                        toast.error("Server Error: Email is not configured.");
+                      } else {
+                        toast.error("Failed to resend verification email.");
+                      }
+                      return;
+                    }
                     setCooldown(30);
                     toast.success(`A new code was sent to ${email}`);
-                    } catch (err: any) {
+                  } catch (err: any) {
                       toast.error(`ERROR: ${err.message || "Failed to resend OTP"}`);
                     } finally {
                     setLoading(false);

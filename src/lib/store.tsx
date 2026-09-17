@@ -21,6 +21,7 @@ import {
   updateNotificationsServer,
   updateComplaintRefServer,
   dismissDetectionAndSaveSafeUrlServer,
+  fetchStoreData,
 } from "./supabase-fns";
 import { toast } from "sonner";
 
@@ -65,6 +66,7 @@ export function PrivaclickProvider({ children }: { children: ReactNode }) {
     Facebook: true,
     "X (Twitter)": true,
     Pinterest: false,
+    Other: false,
   });
   const [notifications, setNotifications] = useState({ email: true, sms: false, weekly: true });
   const [lastScanned, setLastScanned] = useState<string | null>(null);

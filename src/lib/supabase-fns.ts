@@ -71,6 +71,7 @@ export const fetchStoreData = createServerFn({ method: "GET" })
     let detectionsData: any[] = [];
     let complaintsData: any[] = [];
     let lastScan = null;
+    let scanHistoryData: any[] = [];
 
     try {
       // 1. Fetch user by email or default u1
@@ -137,7 +138,6 @@ export const fetchStoreData = createServerFn({ method: "GET" })
 
     try {
       // 5. Fetch scan history
-      let scanHistoryData: any[] = [];
       if (photoIds.length > 0) {
         const { data, error } = await supabase
           .from("scan_history")
@@ -826,6 +826,7 @@ export const sendOtp = createServerFn({ method: "POST" })
         console.log(`Successfully emailed OTP code to ${email}`);
       } catch (err) {
         logError("Error sending OTP email:", err);
+        return { success: false, reason: "send_failed" };
       }
     } else {
       logError(`

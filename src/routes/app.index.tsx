@@ -256,7 +256,7 @@ function Dashboard() {
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
             <Button size="sm" asChild className="bg-primary text-black hover:bg-primary/80 font-bold rounded-lg">
-              <Link to="/app/complaints/new">
+              <Link to="/app/complaints/new" search={{ detection: "" }}>
                 &gt; START_MANUAL_REPORT
               </Link>
             </Button>

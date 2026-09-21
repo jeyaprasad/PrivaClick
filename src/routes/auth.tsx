@@ -8,6 +8,10 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { sendOtp, verifyOtp } from "../lib/supabase-fns";
+import { startPhoneVerification, checkPhoneVerification } from "../lib/twilio-fns";
+
+import { verifyIdSandbox } from "../lib/ekyc-fns";
+import { validateAadhaarChecksum, validatePAN, validatePassport, validateVoterId } from "../lib/id-verification";
 import { usePrivaclick } from "../lib/store";
 
 export const Route = createFileRoute("/auth")({
@@ -31,6 +35,8 @@ function AuthPage() {
   const [stage, setStage] = useState<"credentials" | "otp">("credentials");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [idType, setIdType] = useState<"aadhaar" | "pan" | "passport" | "voter">("aadhaar");
+  const [contactMethod, setContactMethod] = useState<"email" | "phone">("email");
   const [idNumber, setIdNumber] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,11 +63,48 @@ function AuthPage() {
       return;
     }
 
+    if (mode === "signup") {
+      if (!idNumber) {
+        toast.error(`Please enter your ${idType.toUpperCase()} number.`);
+        return;
+      }
+      
+      let isValid = false;
+      let errorMsg = "";
+      
+      if (idType === "aadhaar") {
+        const result = validateAadhaarChecksum(idNumber);
+        isValid = result.valid;
+        errorMsg = result.reason || "Invalid Aadhaar number.";
+      } else if (idType === "pan") {
+        const result = validatePAN(idNumber);
+        isValid = result.valid;
+        errorMsg = result.reason || "Invalid PAN number.";
+      } else if (idType === "passport") {
+        const result = validatePassport(idNumber);
+        isValid = result.valid;
+        errorMsg = result.reason || "Invalid Passport number.";
+      } else if (idType === "voter") {
+        const result = validateVoterId(idNumber);
+        isValid = result.valid;
+        errorMsg = result.reason || "Invalid Voter ID.";
+      }
+
+      if (!isValid) {
+        toast.error(errorMsg);
+        return;
+      }
+    }
+
     setLoading(true);
     try {
-      const res = await sendOtp({ data: { email } });
+      const res = await sendOtp({ data: { email, method: contactMethod } });
       if (res && res.success === false) {
-        toast.error("Something went wrong, please try again");
+        if (res.reason === "email_not_configured") {
+          toast.error("Server Error: Missing email API key. Cannot send OTP.");
+        } else {
+          toast.error("Failed to send verification email. Please try again later.");
+        }
         return;
       }
       setStage("otp");
@@ -84,7 +127,7 @@ function AuthPage() {
 
     setLoading(true);
     try {
-      const res = await verifyOtp({ data: { email, code: otp } });
+      const res = await verifyOtp({ data: { email, code: otp, method: contactMethod } });
       if (res.success) {
         await loadUserData();
         toast.success(mode === "login" ? "Welcome back." : "Account activated successfully.");
@@ -148,13 +191,18 @@ function AuthPage() {
 
             <form onSubmit={submitCredentials} className="mt-6 space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="contact">{contactMethod === "email" ? "Email" : "Phone Number"}</Label>
+                  <button type="button" onClick={() => setContactMethod(m => m === "email" ? "phone" : "email")} className="text-xs text-primary hover:underline">
+                    Verify with {contactMethod === "email" ? "phone number" : "email"} instead
+                  </button>
+                </div>
                 <Input
-                  id="email"
-                  type="email"
+                  id="contact"
+                  type={contactMethod === "email" ? "email" : "tel"}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder={contactMethod === "email" ? "you@example.com" : "+91 9876543210"}
                   maxLength={255}
                   disabled={loading}
                   className="rounded-lg border-border focus-visible:ring-primary"
@@ -180,9 +228,8 @@ function AuthPage() {
                   <Label htmlFor="idnum">ID number for one-time verification</Label>
                   <Input
                     id="idnum"
-                    inputMode="numeric"
-                    value={idNumber}
-                    onChange={(e) => setIdNumber(e.target.value.replace(/\D/g, "").slice(0, 12))}
+                                        value={idNumber}
+                    onChange={(e) => setIdNumber(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}
                     placeholder="Used once, never saved"
                     disabled={loading}
                     className="rounded-lg border-border focus-visible:ring-primary"
@@ -244,9 +291,13 @@ function AuthPage() {
                   if (cooldown > 0) return;
                   setLoading(true);
                   try {
-                    const res = await sendOtp({ data: { email } });
+                    const res = await sendOtp({ data: { email, method: contactMethod } });
                     if (res && res.success === false) {
-        toast.error("Something went wrong, please try again");
+        if (res.reason === "email_not_configured") {
+          toast.error("Server Error: Missing email API key. Cannot send OTP.");
+        } else {
+          toast.error("Failed to send verification email. Please try again later.");
+        }
         return;
       }
                     setCooldown(30);

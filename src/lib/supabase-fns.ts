@@ -752,7 +752,7 @@ LINK: ${detectionsLink}
 
 // Send OTP to user's email
 export const sendOtp = createServerFn({ method: "POST" })
-  .validator(z.object({ email: z.string().email() }))
+  .validator(z.object({ email: z.string(), method: z.enum(["email", "phone"]).optional() }))
   .handler(async ({ data }) => {
     try {
       const { email } = data;
@@ -813,7 +813,18 @@ export const sendOtp = createServerFn({ method: "POST" })
         logError("Supabase unreachable. Falling back to local memory store.", err);
       }
 
-      if (process.env.RESEND_API_KEY) {
+      if (data.method === "phone") {
+        logError(`
+============================================================
+[SMS DISPATCH LOG] SMS Gateway not configured.
+Simulating OTP code generation to Phone.
+PHONE   : ${email}
+CODE    : ${code}
+EXPIRY  : ${expiresAt.toISOString()}
+============================================================
+        `);
+        // For hackathon/demo, we succeed silently on phone if no gateway
+      } else if (process.env.RESEND_API_KEY) {
         const html = `
           <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
             <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_VERIFICATION</h2>
@@ -836,6 +847,7 @@ CODE    : ${code}
 EXPIRY  : ${expiresAt.toISOString()}
 ============================================================
         `);
+        return { success: false, reason: "email_not_configured" };
       }
 
       return { success: true };
@@ -846,7 +858,7 @@ EXPIRY  : ${expiresAt.toISOString()}
   });
 // Verify OTP
 export const verifyOtp = createServerFn({ method: "POST" })
-  .validator(z.object({ email: z.string().email(), code: z.string() }))
+  .validator(z.object({ email: z.string(), code: z.string(), method: z.enum(["email", "phone"]).optional() }))
   .handler(async ({ data }) => {
     const { email, code } = data;
 
@@ -912,7 +924,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
         finalUserId = `u-${Date.now()}`;
         await (await getAuthSupabase()).from("users").insert({
           id: finalUserId,
-          name: email.split("@")[0].toUpperCase(),
+          name: email.includes("@") ? email.split("@")[0].toUpperCase() : "USER",
           email: email,
           phone: "+91 98765 43210",
           masked_id: "XXXX XXXX 4821",

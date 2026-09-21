@@ -61,11 +61,7 @@ function AuthPage() {
     try {
       const res = await sendOtp({ data: { email } });
       if (res && res.success === false) {
-        if (res.reason === "email_not_configured") {
-          toast.error("Server Error: Email is not configured. Cannot send OTP.");
-        } else {
-          toast.error("Failed to send verification email. Please try again later.");
-        }
+        toast.error("Something went wrong, please try again");
         return;
       }
       setStage("otp");
@@ -73,7 +69,7 @@ function AuthPage() {
       toast.success(`OTP sent to ${email}`);
     } catch (err: any) {
       console.error(err);
-      toast.error(`ERROR: ${err.message || "Failed to send OTP"}`);
+      toast.error("Something went wrong, please try again");
     } finally {
       setLoading(false);
     }
@@ -98,7 +94,7 @@ function AuthPage() {
       }
     } catch (err: any) {
       console.error(err);
-      toast.error(`ERROR: Verification failed. ${err.message || ""}`);
+      toast.error("Something went wrong, please try again");
     } finally {
       setLoading(false);
     }
@@ -250,18 +246,14 @@ function AuthPage() {
                   try {
                     const res = await sendOtp({ data: { email } });
                     if (res && res.success === false) {
-                      if (res.reason === "email_not_configured") {
-                        toast.error("Server Error: Email is not configured.");
-                      } else {
-                        toast.error("Failed to resend verification email.");
-                      }
-                      return;
-                    }
+        toast.error("Something went wrong, please try again");
+        return;
+      }
                     setCooldown(30);
                     toast.success(`A new code was sent to ${email}`);
                   } catch (err: any) {
-                      toast.error(`ERROR: ${err.message || "Failed to resend OTP"}`);
-                    } finally {
+                        toast.error("Something went wrong, please try again");
+                      } finally {
                     setLoading(false);
                   }
                 }}

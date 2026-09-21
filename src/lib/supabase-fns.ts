@@ -22,21 +22,34 @@ async function getAuthSupabase() {
 
 import { supabase } from "./supabase.server";
 import { z } from "zod";
-import nodemailer from "nodemailer";
-
-// Initialize SMTP Transporter
-const smtpUser = process.env.SMTP_USER;
-const smtpPass = process.env.SMTP_PASS;
-
-const transporter = (smtpUser && smtpPass)
-  ? nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
+// Helper for sending emails via Resend API
+async function sendEmail(to: string, subject: string, html: string, fromName: string) {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) {
+    throw new Error("email_not_configured");
+  }
+  
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${resendKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      from: `"${fromName}" <${fromEmail}>`,
+      to,
+      subject,
+      html
     })
-  : null;
+  });
+  
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Resend API failed: ${errText}`);
+  }
+  return await res.json();
+}
 
 // Local fallback memory store for OTPs when Supabase is unreachable
 const localOtpStore = new Map<string, { code: string; expiresAt: Date }>();
@@ -677,36 +690,31 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       const appUrl = process.env.APP_URL || "http://localhost:3000";
       const detectionsLink = `${appUrl}/app/detections`;
 
-      if (transporter) {
+      if (process.env.RESEND_API_KEY) {
         try {
-          await transporter.sendMail({
-            from: `"Privaclick Alerts" <${smtpUser}>`,
-            to: emailTarget,
-            subject: `ALERT: ${newDetections.length} Unauthorized Match(es) Found`,
-            text: `We have detected ${newDetections.length} new unauthorized matching copies of your photo "${photo.name || "Untitled"}". Review them immediately at: ${detectionsLink}`,
-            html: `
-              <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
-                <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_ALERT</h2>
-                <p style="margin-top: 20px;">Our web scan has detected <strong>${newDetections.length}</strong> new match(es) for your photo: <strong>${photo.name || "Untitled"}</strong>.</p>
-                
-                <ul style="list-style-type: none; padding: 0; margin: 20px 0;">
-                  ${newDetections.map(d => `
-                    <li style="margin-bottom: 10px; padding: 10px; background-color: #111; border: 1px solid #333;">
-                      <strong>[${d.platform.toUpperCase()}]</strong> Match Confidence: ${d.confidence}%
-                      <div style="font-size: 10px; color: #888; overflow-wrap: break-word; margin-top: 5px;">Source: ${d.sourceUrl}</div>
-                    </li>
-                  `).join("")}
-                </ul>
+          const html = `
+            <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
+              <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_ALERT</h2>
+              <p style="margin-top: 20px;">Our web scan has detected <strong>${newDetections.length}</strong> new match(es) for your photo: <strong>${photo.name || "Untitled"}</strong>.</p>
+              
+              <ul style="list-style-type: none; padding: 0; margin: 20px 0;">
+                ${newDetections.map(d => `
+                  <li style="margin-bottom: 10px; padding: 10px; background-color: #111; border: 1px solid #333;">
+                    <strong>[${d.platform.toUpperCase()}]</strong> Match Confidence: ${d.confidence}%
+                    <div style="font-size: 10px; color: #888; overflow-wrap: break-word; margin-top: 5px;">Source: ${d.sourceUrl}</div>
+                  </li>
+                `).join("")}
+              </ul>
 
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${detectionsLink}" style="display: inline-block; font-size: 14px; font-weight: bold; color: #000; background-color: #00ff00; padding: 12px 24px; text-decoration: none; border: 1px solid #00ff00;">
-                    &gt; REVIEW_DETECTIONS
-                  </a>
-                </div>
-                <p style="font-size: 11px; color: #888;">// YOU RECEIVED THIS ALERT BECAUSE EMAIL NOTIFICATIONS ARE ENABLED ON YOUR ACCOUNT.</p>
+              <div style="text-align: center; margin: 30px 0;">
+                <a href="${detectionsLink}" style="display: inline-block; font-size: 14px; font-weight: bold; color: #000; background-color: #00ff00; padding: 12px 24px; text-decoration: none; border: 1px solid #00ff00;">
+                  &gt; REVIEW_DETECTIONS
+                </a>
               </div>
-            `,
-          });
+              <p style="font-size: 11px; color: #888;">// YOU RECEIVED THIS ALERT BECAUSE EMAIL NOTIFICATIONS ARE ENABLED ON YOUR ACCOUNT.</p>
+            </div>
+          `;
+          await sendEmail(emailTarget, `ALERT: ${newDetections.length} Unauthorized Match(es) Found`, html, "Privaclick Alerts");
           console.log(`Matching alert email successfully sent to ${emailTarget}`);
         } catch (err) {
           logError("Failed to send matching alert email:", err);
@@ -714,7 +722,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       } else {
         logError(`
 ============================================================
-[SMTP ALERT LOG] SMTP NOT CONFIG - WOULD SEND MATCH ALERT TO ${emailTarget}
+[RESEND NOT CONFIG] RESEND_API_KEY is not configured.
 MATCHES FOUND: ${newDetections.length}
 FOR PHOTO: ${photo.name || "Untitled"} (ID: ${photoId})
 LINK: ${detectionsLink}
@@ -746,103 +754,96 @@ LINK: ${detectionsLink}
 export const sendOtp = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string().email() }))
   .handler(async ({ data }) => {
-    const { email } = data;
-    const FIFTEEN_MINS_MS = 15 * 60 * 1000;
-    const timeLimit = new Date(Date.now() - FIFTEEN_MINS_MS).toISOString();
-
-    // Check rate limit
-    let recentRequests: any[] = [];
     try {
-      const { data, error } = await (await getAuthSupabase())
-        .from("otp_requests")
-        .select("requested_at")
-        .eq("email", email)
-        .gte("requested_at", timeLimit)
-        .order("requested_at", { ascending: true });
+      const { email } = data;
+      const FIFTEEN_MINS_MS = 15 * 60 * 1000;
+      const timeLimit = new Date(Date.now() - FIFTEEN_MINS_MS).toISOString();
 
-      if (!error && data) {
-        recentRequests = data;
-      }
-    } catch (e) {
-      logError("Could not fetch rate limit data", e);
-    }
-
-    if (recentRequests.length >= 3) {
-      const oldest = new Date(recentRequests[0].requested_at).getTime();
-      const waitMins = Math.ceil((oldest + FIFTEEN_MINS_MS - Date.now()) / 60000);
-      throw new Error(`Too many attempts, try again in ${waitMins} minutes`);
-    }
-
-    // Insert new request record
-    try {
-      await (await getAuthSupabase()).from("otp_requests").insert({ email });
-    } catch (e) {
-      logError("Could not log otp request", e);
-    }
-
-    
-    // Generate a 6-digit OTP code
-    const code = String(Math.floor(100000 + Math.random() * 900000));
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
-
-    // Save in local memory store first
-    localOtpStore.set(email, { code, expiresAt });
-
-    try {
-      // Store in Supabase
-      const { error } = await supabase
-        .from("email_otps")
-        .upsert({
-          email,
-          code,
-          expires_at: expiresAt.toISOString(),
-        }, { onConflict: "email" });
-
-      if (error) {
-        logError("Supabase save failed. Using local memory backup.", error);
-      }
-    } catch (err) {
-      logError("Supabase unreachable. Falling back to local memory store.", err);
-    }
-
-    if (transporter) {
+      // Check rate limit
+      let recentRequests: any[] = [];
       try {
-        await transporter.sendMail({
-          from: `"Privaclick Security" <${smtpUser}>`,
-          to: email,
-          subject: "Privaclick Verification Code",
-          text: `Your 6-digit verification code is: ${code}. It expires in 5 minutes.`,
-          html: `
-            <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
-              <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_VERIFICATION</h2>
-              <p style="margin-top: 20px;">Use this 6-digit code to verify your identity and activate your account:</p>
-              <div style="font-size: 32px; font-weight: bold; text-align: center; margin: 30px 0; letter-spacing: 5px; color: #00ff00; background-color: #111; padding: 15px; border: 1px dashed #00ff00;">
-                ${code}
-              </div>
-              <p style="font-size: 11px; color: #888;">// THIS CODE EXPIRES IN 5 MINUTES AND WAS ISSUED AT ${new Date().toLocaleTimeString()}.</p>
-            </div>
-          `,
-        });
-        console.log(`Successfully emailed OTP code to ${email}`);
-      } catch (err) {
-        logError("Error sending OTP email:", err);
-        return { success: false, reason: "send_failed" };
+        const { data, error } = await (await getAuthSupabase())
+          .from("otp_requests")
+          .select("requested_at")
+          .eq("email", email)
+          .gte("requested_at", timeLimit)
+          .order("requested_at", { ascending: true });
+
+        if (!error && data) {
+          recentRequests = data;
+        }
+      } catch (e) {
+        logError("Could not fetch rate limit data", e);
       }
-    } else {
-      logError(`
+
+      if (recentRequests.length >= 3) {
+        const oldest = new Date(recentRequests[0].requested_at).getTime();
+        const waitMins = Math.ceil((oldest + FIFTEEN_MINS_MS - Date.now()) / 60000);
+        throw new Error(`Too many attempts, try again in ${waitMins} minutes`);
+      }
+
+      // Insert new request record
+      try {
+        await (await getAuthSupabase()).from("otp_requests").insert({ email });
+      } catch (e) {
+        logError("Could not log otp request", e);
+      }
+      
+      // Generate a 6-digit OTP code
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes expiry
+
+      // Save in local memory store first
+      localOtpStore.set(email, { code, expiresAt });
+
+      try {
+        // Store in Supabase
+        const { error } = await supabase
+          .from("email_otps")
+          .upsert({
+            email,
+            code,
+            expires_at: expiresAt.toISOString(),
+          }, { onConflict: "email" });
+
+        if (error) {
+          logError("Supabase save failed. Using local memory backup.", error);
+        }
+      } catch (err) {
+        logError("Supabase unreachable. Falling back to local memory store.", err);
+      }
+
+      if (process.env.RESEND_API_KEY) {
+        const html = `
+          <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
+            <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_VERIFICATION</h2>
+            <p style="margin-top: 20px;">Use this 6-digit code to verify your identity and activate your account:</p>
+            <div style="font-size: 32px; font-weight: bold; text-align: center; margin: 30px 0; letter-spacing: 5px; color: #00ff00; background-color: #111; padding: 15px; border: 1px dashed #00ff00;">
+              ${code}
+            </div>
+            <p style="font-size: 11px; color: #888;">// THIS CODE EXPIRES IN 5 MINUTES AND WAS ISSUED AT ${new Date().toLocaleTimeString()}.</p>
+          </div>
+        `;
+        await sendEmail(email, "Privaclick Verification Code", html, "Privaclick Security");
+        console.log(`Successfully emailed OTP code to ${email}`);
+      } else {
+        logError(`
 ============================================================
-[SMTP NOT CONFIG] SMTP_USER/SMTP_PASS are not configured.
+[RESEND NOT CONFIG] RESEND_API_KEY is not configured.
 Simulating OTP code generation.
 EMAIL TO: ${email}
 CODE    : ${code}
 EXPIRY  : ${expiresAt.toISOString()}
 ============================================================
-      `);
+        `);
+      }
+
+      return { success: true };
+    } catch (err: any) {
+      logError("sendOtp internal error:", err);
+      return { success: false, reason: "internal_error" };
     }
-
-    return { success: true };
   });
-
 // Verify OTP
 export const verifyOtp = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string().email(), code: z.string() }))

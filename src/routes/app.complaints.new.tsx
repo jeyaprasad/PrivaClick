@@ -54,7 +54,7 @@ const PLATFORM_TEMPLATES: Record<string, PlatformConfig> = {
       { key: "workDescription", label: "Description of Original Work", placeholder: "e.g., Portrait photograph of myself", type: "text" },
     ],
     defaultTemplate: ({ fullName, email, sourceUrl, originalUrl, extraFields }) =>
-      `Meta Rights Operations Team,\n\nI am writing to report a copyright infringement on Instagram. The image listed below belongs to me and has been uploaded without my authorization.\n\n1. Copyright Owner: ${fullName}\n2. Contact Email: ${email}\n3. Original Reference Image: ${originalUrl}\n4. Infringing Instagram Post: ${sourceUrl}\n5. Description of Work: ${extraFields.workDescription || "Original portrait photograph"}\n\nI have a good faith belief that the use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law. The information in this notification is accurate, and, under penalty of perjury, I am the owner of the exclusive right that is allegedly infringed.\n\nSincerely,\n${fullName}`,
+      `Meta Rights Operations Team,\n\nI am writing to report a copyright infringement on Instagram. The image listed below belongs to me and has been uploaded without my authorization.\n\n1. Copyright Owner: ${fullName}\n2. Contact Email: ${email}\n3. Original Reference Image: ${originalUrl}\n4. Infringing Instagram Post: ${sourceUrl}\n5. Description of Work: ${extraFields['workDescription'] || "Original portrait photograph"}\n\nI have a good faith belief that the use of the material in the manner complained of is not authorized by the copyright owner, its agent, or the law. The information in this notification is accurate, and, under penalty of perjury, I am the owner of the exclusive right that is allegedly infringed.\n\nSincerely,\n${fullName}`,
   },
   Facebook: {
     reportUrl: "https://www.facebook.com/help/contact/1758254161105370",
@@ -63,7 +63,7 @@ const PLATFORM_TEMPLATES: Record<string, PlatformConfig> = {
       { key: "workDescription", label: "Description of Original Work", placeholder: "e.g., Candid photo taken in a public park", type: "text" },
     ],
     defaultTemplate: ({ fullName, email, sourceUrl, originalUrl, extraFields }) =>
-      `Meta Intellectual Property Operations,\n\nI am the copyright owner of the image copied below. A Facebook page/group is hosting this image without my consent.\n\n1. Full Legal Name: ${fullName}\n2. Email Address: ${email}\n3. Original Work URL: ${originalUrl}\n4. Infringing Facebook URL: ${sourceUrl}\n5. Infringement Context: ${extraFields.workDescription || "Candid photography"}\n\nI declare under penalty of perjury that the information in this notice is accurate and that I am the copyright owner or authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.\n\nSincerely,\n${fullName}`,
+      `Meta Intellectual Property Operations,\n\nI am the copyright owner of the image copied below. A Facebook page/group is hosting this image without my consent.\n\n1. Full Legal Name: ${fullName}\n2. Email Address: ${email}\n3. Original Work URL: ${originalUrl}\n4. Infringing Facebook URL: ${sourceUrl}\n5. Infringement Context: ${extraFields['workDescription'] || "Candid photography"}\n\nI declare under penalty of perjury that the information in this notice is accurate and that I am the copyright owner or authorized to act on behalf of the owner of an exclusive right that is allegedly infringed.\n\nSincerely,\n${fullName}`,
   },
   "X (Twitter)": {
     reportUrl: "https://help.x.com/en/forms/rules-and-policies/private-information",
@@ -72,7 +72,7 @@ const PLATFORM_TEMPLATES: Record<string, PlatformConfig> = {
       { key: "username", label: "Your X Username (Optional)", placeholder: "@username", type: "text" },
     ],
     defaultTemplate: ({ fullName, email, sourceUrl, originalUrl, extraFields }) =>
-      `X Trust & Safety Team,\n\nI am writing to request the removal of media containing my image under X's Private Information and Media Policy. The tweet linked below hosts my personal photograph without my consent.\n\n1. Claimant Name: ${fullName}\n2. Contact Email: ${email}\n${extraFields.username ? `3. X Handle: ${extraFields.username}\n` : ""}4. Unauthorized Tweet URL: ${sourceUrl}\n5. Reference Photograph URL: ${originalUrl}\n\nI confirm that I did not consent to the publishing of this media, and its publication violates my privacy and personal safety.\n\nSincerely,\n${fullName}`,
+      `X Trust & Safety Team,\n\nI am writing to request the removal of media containing my image under X's Private Information and Media Policy. The tweet linked below hosts my personal photograph without my consent.\n\n1. Claimant Name: ${fullName}\n2. Contact Email: ${email}\n${extraFields['username'] ? `3. X Handle: ${extraFields['username']}\n` : ""}4. Unauthorized Tweet URL: ${sourceUrl}\n5. Reference Photograph URL: ${originalUrl}\n\nI confirm that I did not consent to the publishing of this media, and its publication violates my privacy and personal safety.\n\nSincerely,\n${fullName}`,
   },
   Pinterest: {
     reportUrl: "https://www.pinterest.com/about/copyright/dmca-pin/",
@@ -81,7 +81,7 @@ const PLATFORM_TEMPLATES: Record<string, PlatformConfig> = {
       { key: "pinterestUser", label: "Your Pinterest Account Link (Optional)", placeholder: "https://pinterest.com/username", type: "text" },
     ],
     defaultTemplate: ({ fullName, email, sourceUrl, originalUrl, extraFields }) =>
-      `Pinterest Copyright Agent,\n\nI am the copyright owner of the image distributed on Pinterest. A user has pinned my photo without permission.\n\n1. Claimant Signature: ${fullName}\n2. Email Address: ${email}\n3. Original Work Link: ${originalUrl}\n4. Infringing Pin URL: ${sourceUrl}\n${extraFields.pinterestUser ? `5. Pinterest Profile: ${extraFields.pinterestUser}\n` : ""}\nI request that you remove the infringing pin immediately as per the Digital Millennium Copyright Act. I swear, under penalty of perjury, that the information in the notification is accurate and that I am the copyright owner.\n\nSincerely,\n${fullName}`,
+      `Pinterest Copyright Agent,\n\nI am the copyright owner of the image distributed on Pinterest. A user has pinned my photo without permission.\n\n1. Claimant Signature: ${fullName}\n2. Email Address: ${email}\n3. Original Work Link: ${originalUrl}\n4. Infringing Pin URL: ${sourceUrl}\n${extraFields['pinterestUser'] ? `5. Pinterest Profile: ${extraFields['pinterestUser']}\n` : ""}\nI request that you remove the infringing pin immediately as per the Digital Millennium Copyright Act. I swear, under penalty of perjury, that the information in the notification is accurate and that I am the copyright owner.\n\nSincerely,\n${fullName}`,
   },
   Other: {
     reportUrl: "https://www.whois.com/whois/",
@@ -90,7 +90,7 @@ const PLATFORM_TEMPLATES: Record<string, PlatformConfig> = {
       { key: "companyName", label: "Company/Publisher (Optional)", placeholder: "e.g., Ananya Photography", type: "text" },
     ],
     defaultTemplate: ({ fullName, email, sourceUrl, originalUrl, extraFields }) =>
-      `To the Hosting Provider / Site Administrator,\n\nThis is a formal notification under the Digital Millennium Copyright Act (DMCA). The website listed below is displaying my copyright-protected photograph without authorization.\n\n1. Copyright Owner: ${fullName} ${extraFields.companyName ? `(${extraFields.companyName})` : ""}\n2. Email: ${email}\n3. Original Work: ${originalUrl}\n4. Infringing Webpage: ${sourceUrl}\n\nI request that you disable access to the infringing material immediately.\n\nSincerely,\n${fullName}`,
+      `To the Hosting Provider / Site Administrator,\n\nThis is a formal notification under the Digital Millennium Copyright Act (DMCA). The website listed below is displaying my copyright-protected photograph without authorization.\n\n1. Copyright Owner: ${fullName} ${extraFields['companyName'] ? `(${extraFields['companyName']})` : ""}\n2. Email: ${email}\n3. Original Work: ${originalUrl}\n4. Infringing Webpage: ${sourceUrl}\n\nI request that you disable access to the infringing material immediately.\n\nSincerely,\n${fullName}`,
   },
 };
 
@@ -112,7 +112,7 @@ function NewComplaint() {
   const { detections, user, fileComplaint } = usePrivaclick();
   const detection = detections.find((d) => d.id === detectionId) ?? detections[0];
 
-  const config = PLATFORM_TEMPLATES[detection?.platform] || PLATFORM_TEMPLATES.Other;
+  const config = PLATFORM_TEMPLATES[detection?.platform || 'Other'] || PLATFORM_TEMPLATES['Other'];
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [fullName, setFullName] = useState(user.name);
@@ -456,7 +456,7 @@ function NewComplaint() {
                   </div>
                 </div>
 
-                {config.requiredFields.map((field) => (
+                {config.requiredFields.map((field: any) => (
                   <div key={field.key} className="space-y-2">
                     <Label htmlFor={field.key} className="text-xs font-semibold text-muted-foreground uppercase">{field.label}</Label>
                     <Input id={field.key} type={field.type} placeholder={field.placeholder} value={extraFields[field.key] || ""} onChange={(e) => setExtraFields((prev) => ({ ...prev, [field.key]: e.target.value }))} className="bg-background" />

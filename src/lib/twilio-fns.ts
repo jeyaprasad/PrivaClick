@@ -7,11 +7,11 @@ import { supabase } from "./supabase.server";
 import { getCookie } from "@tanstack/react-start/server";
 import { createClient } from "@supabase/supabase-js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-for-dev";
+const JWT_SECRET = process.env['JWT_SECRET'] || "fallback-secret-for-dev";
 const SESSION_SECRET = new TextEncoder().encode(JWT_SECRET);
 
-const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY || "placeholder-anon-key";
+const supabaseUrl = process.env['SUPABASE_URL'] || process.env['VITE_SUPABASE_URL'] || "https://placeholder.supabase.co";
+const supabaseAnonKey = process.env['SUPABASE_ANON_KEY'] || process.env['VITE_SUPABASE_ANON_KEY'] || "placeholder-anon-key";
 
 async function getAuthSupabase() {
   const token = getCookie("privaclick_session");
@@ -31,9 +31,9 @@ export const startPhoneVerification = createServerFn({ method: "POST" })
   .validator(z.object({ phoneNumber: z.string() }))
   .handler(async ({ data }) => {
     const { phoneNumber } = data;
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    const accountSid = process.env['TWILIO_ACCOUNT_SID'];
+    const authToken = process.env['TWILIO_AUTH_TOKEN'];
+    const serviceSid = process.env['TWILIO_VERIFY_SERVICE_SID'];
 
     if (!accountSid || !authToken || !serviceSid) {
       logError("Twilio environment variables are missing.");
@@ -71,9 +71,9 @@ export const checkPhoneVerification = createServerFn({ method: "POST" })
   .validator(z.object({ phoneNumber: z.string(), code: z.string() }))
   .handler(async ({ data }) => {
     const { phoneNumber, code } = data;
-    const accountSid = process.env.TWILIO_ACCOUNT_SID;
-    const authToken = process.env.TWILIO_AUTH_TOKEN;
-    const serviceSid = process.env.TWILIO_VERIFY_SERVICE_SID;
+    const accountSid = process.env['TWILIO_ACCOUNT_SID'];
+    const authToken = process.env['TWILIO_AUTH_TOKEN'];
+    const serviceSid = process.env['TWILIO_VERIFY_SERVICE_SID'];
 
     if (!accountSid || !authToken || !serviceSid) {
       logError("Twilio environment variables are missing.");
@@ -148,7 +148,7 @@ export const checkPhoneVerification = createServerFn({ method: "POST" })
 
       setCookie("privaclick_session", jwt, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
+        secure: process.env['NODE_ENV'] === "production",
         path: "/",
         maxAge: 60 * 60 * 24 * 7,
         sameSite: "lax"

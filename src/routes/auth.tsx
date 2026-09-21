@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, KeyRound, ShieldCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { handleFormError } from "../lib/error-toast";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -101,9 +103,9 @@ function AuthPage() {
       const res = await sendOtp({ data: { email, method: contactMethod } });
       if (res && res.success === false) {
         if (res.reason === "email_not_configured") {
-          toast.error("Server Error: Missing email API key. Cannot send OTP.");
+          handleFormError(res);
         } else {
-          toast.error("Failed to send verification email. Please try again later.");
+          handleFormError(res);
         }
         return;
       }
@@ -111,9 +113,8 @@ function AuthPage() {
       setCooldown(30);
       toast.success(`OTP sent to ${email}`);
     } catch (err: any) {
-      console.error(err);
-      toast.error("Something went wrong, please try again");
-    } finally {
+        handleFormError(err);
+      } finally {
       setLoading(false);
     }
   };
@@ -133,12 +134,11 @@ function AuthPage() {
         toast.success(mode === "login" ? "Welcome back." : "Account activated successfully.");
         navigate({ to: mode === "login" ? "/app" : "/onboarding" });
       } else {
-        toast.error(`ERROR: ${res.error || "Verification failed"}`);
+        toast.error(res.error || "Verification failed.");
       }
     } catch (err: any) {
-      console.error(err);
-      toast.error("Something went wrong, please try again");
-    } finally {
+        handleFormError(err);
+      } finally {
       setLoading(false);
     }
   };
@@ -317,17 +317,17 @@ function AuthPage() {
                     const res = await sendOtp({ data: { email, method: contactMethod } });
                     if (res && res.success === false) {
         if (res.reason === "email_not_configured") {
-          toast.error("Server Error: Missing email API key. Cannot send OTP.");
+          handleFormError(res);
         } else {
-          toast.error("Failed to send verification email. Please try again later.");
+          handleFormError(res);
         }
         return;
       }
                     setCooldown(30);
                     toast.success(`A new code was sent to ${email}`);
                   } catch (err: any) {
-                        toast.error("Something went wrong, please try again");
-                      } finally {
+        handleFormError(err);
+      } finally {
                     setLoading(false);
                   }
                 }}

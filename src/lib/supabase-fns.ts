@@ -3,8 +3,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { getCookie, setCookie, deleteCookie } from "@tanstack/react-start/server";
 import { SignJWT, jwtVerify } from "jose";
 import { createClient } from "@supabase/supabase-js";
-const supabaseUrl = process.env.SUPABASE_URL || import.meta.env?.VITE_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY || import.meta.env?.VITE_SUPABASE_ANON_KEY || "placeholder-anon-key";
+const supabaseUrl = process.env['SUPABASE_URL'] || import.meta.env?.['VITE_SUPABASE_URL'] || "https://placeholder.supabase.co";
+const supabaseAnonKey = process.env['SUPABASE_ANON_KEY'] || import.meta.env?.['VITE_SUPABASE_ANON_KEY'] || "placeholder-anon-key";
 
 async function getAuthSupabase() {
   const token = getCookie("privaclick_session");
@@ -24,12 +24,12 @@ import { supabase } from "./supabase.server";
 import { z } from "zod";
 // Helper for sending emails via Resend API
 async function sendEmail(to: string, subject: string, html: string, fromName: string) {
-  const resendKey = process.env.RESEND_API_KEY;
+  const resendKey = process.env['RESEND_API_KEY'];
   if (!resendKey) {
-    throw new Error("email_not_configured");
+    return { success: false, error: "Email service is not configured." };
   }
   
-  const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+  const fromEmail = process.env['RESEND_FROM_EMAIL'] || "onboarding@resend.dev";
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: {
@@ -46,7 +46,7 @@ async function sendEmail(to: string, subject: string, html: string, fromName: st
   
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Resend API failed: ${errText}`);
+    return { success: false, error: "Email delivery failed." };
   }
   return await res.json();
 }
@@ -56,7 +56,7 @@ const localOtpStore = new Map<string, { code: string; expiresAt: Date }>();
 
 
 // Session Secret for JWT
-const SESSION_SECRET = new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET || process.env.SESSION_SECRET || "default_fallback_secret_for_dev_min_32_chars");
+const SESSION_SECRET = new TextEncoder().encode(process.env['SUPABASE_JWT_SECRET'] || process.env['SESSION_SECRET'] || "default_fallback_secret_for_dev_min_32_chars");
 
 async function verifySessionServer() {
   const token = getCookie("privaclick_session");
@@ -70,13 +70,22 @@ async function verifySessionServer() {
 }
 
 export const logoutServer = createServerFn({ method: "POST" }).handler(async () => {
+      try {
+
   deleteCookie("privaclick_session", { path: "/" });
   return { success: true };
+
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
 });
 
 // Fetch all database records
 export const fetchStoreData = createServerFn({ method: "GET" })
   .handler(async () => {
+      try {
+
     const authUserId = await verifySessionServer();
     
     let userData = null;
@@ -222,7 +231,12 @@ export const fetchStoreData = createServerFn({ method: "GET" })
       })),
       lastScanned: lastScan?.scanned_at || null
     };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Insert photos
 export const addPhotosServer = createServerFn({ method: "POST" })
@@ -235,8 +249,10 @@ export const addPhotosServer = createServerFn({ method: "POST" })
     }))
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     const records = data.photos.map(p => ({
       id: p.id,
       user_id: authUserId,
@@ -259,14 +275,21 @@ export const addPhotosServer = createServerFn({ method: "POST" })
       logError("Supabase offline, photos stored in local cache.", err);
       return [];
     }
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Delete photo
 export const removePhotoServer = createServerFn({ method: "POST" })
   .validator(z.string())
   .handler(async ({ data: photoId }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       const { error } = await supabase
         .from("photos")
@@ -280,7 +303,12 @@ export const removePhotoServer = createServerFn({ method: "POST" })
       logError("Supabase offline, photo deleted from local cache.", err);
     }
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Update detection status
 export const setDetectionStatusServer = createServerFn({ method: "POST" })
@@ -289,8 +317,10 @@ export const setDetectionStatusServer = createServerFn({ method: "POST" })
     status: z.string()
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       const { error } = await supabase
         .from("detections")
@@ -304,7 +334,12 @@ export const setDetectionStatusServer = createServerFn({ method: "POST" })
       logError("Supabase offline, detection status updated in local cache.", err);
     }
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // File a complaint
 export const fileComplaintServer = createServerFn({ method: "POST" })
@@ -318,8 +353,10 @@ export const fileComplaintServer = createServerFn({ method: "POST" })
     referenceId: z.string()
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       // 1. Insert complaint
       const { error: complaintError } = await supabase
@@ -352,7 +389,12 @@ export const fileComplaintServer = createServerFn({ method: "POST" })
     }
 
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Scan a photo for unauthorized copies using Google Vision API Web Detection
 export const scanPhotoForMatches = createServerFn({ method: "POST" })
@@ -364,8 +406,10 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
     })
   ]))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     let photoId = "";
     let demoMode = true; // Default to true for resilient presentations
 
@@ -416,7 +460,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
       ? user.known_domains.split(",").map((d: string) => d.trim().toLowerCase())
       : [];
 
-    const apiKey = process.env.GOOGLE_VISION_API_KEY;
+    const apiKey = process.env['GOOGLE_VISION_API_KEY'];
 
     let webDetectionResults: any[] = [];
     let visionApiSuccess = false;
@@ -548,7 +592,7 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
             matchType: (c.match_type as any) || "exact"
           }));
         } else {
-          throw new Error(cacheError?.message || "No pre-cached demo matches in table");
+          return { success: false, error: "Demo data unavailable." };
         }
       } catch (err) {
         logError("Failed to load cached matches from table, using local memory fallback:", err);
@@ -687,10 +731,10 @@ export const scanPhotoForMatches = createServerFn({ method: "POST" })
     // 3. Send email alert if new detections are found and email alerts are enabled
     if (newDetections.length > 0 && user?.email_notifications !== false) {
       const emailTarget = user?.email || "ananya@example.com";
-      const appUrl = process.env.APP_URL || "http://localhost:3000";
+      const appUrl = process.env['APP_URL'] || "http://localhost:3000";
       const detectionsLink = `${appUrl}/app/detections`;
 
-      if (process.env.RESEND_API_KEY) {
+      if (process.env['RESEND_API_KEY']) {
         try {
           const html = `
             <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
@@ -748,12 +792,19 @@ LINK: ${detectionsLink}
       }
       
       return newDetections;
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Send OTP to user's email
 export const sendOtp = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string(), method: z.enum(["email", "phone"]).optional() }))
   .handler(async ({ data }) => {
+      try {
+
     try {
       const { email } = data;
       const FIFTEEN_MINS_MS = 15 * 60 * 1000;
@@ -779,7 +830,7 @@ export const sendOtp = createServerFn({ method: "POST" })
       if (recentRequests.length >= 3) {
         const oldest = new Date(recentRequests[0].requested_at).getTime();
         const waitMins = Math.ceil((oldest + FIFTEEN_MINS_MS - Date.now()) / 60000);
-        throw new Error(`Too many attempts, try again in ${waitMins} minutes`);
+        return { success: false, error: `Too many attempts, try again in ${waitMins} minutes` };
       }
 
       // Insert new request record
@@ -824,7 +875,7 @@ EXPIRY  : ${expiresAt.toISOString()}
 ============================================================
         `);
         // For hackathon/demo, we succeed silently on phone if no gateway
-      } else if (process.env.RESEND_API_KEY) {
+      } else if (process.env['RESEND_API_KEY']) {
         const html = `
           <div style="font-family: monospace; padding: 20px; background-color: #000; color: #00ff00; border: 1px solid #00ff00; max-width: 500px; margin: auto;">
             <h2 style="border-bottom: 1px solid #00ff00; pb: 10px; color: #00ff00;">&gt; PRIVACLICK_VERIFICATION</h2>
@@ -856,11 +907,18 @@ EXPIRY  : ${expiresAt.toISOString()}
       logError("sendOtp internal error:", err);
       return { success: false, reason: "internal_error" };
     }
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 // Verify OTP
 export const verifyOtp = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string(), code: z.string(), method: z.enum(["email", "phone"]).optional() }))
   .handler(async ({ data }) => {
+      try {
+
     const { email, code } = data;
 
     let record: any = null;
@@ -887,7 +945,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
       }
     }
 
-    const isDemoBypass = !process.env.RESEND_API_KEY && (code === "123456" || code === "000000");
+    const isDemoBypass = !process.env['RESEND_API_KEY'] && (code === "123456" || code === "000000");
     
     if (!record && !isDemoBypass) {
       return { success: false, error: "Verification code not found. Please request a new one." };
@@ -951,14 +1009,19 @@ export const verifyOtp = createServerFn({ method: "POST" })
 
     setCookie("privaclick_session", jwt, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: process.env['NODE_ENV'] === "production",
       path: "/",
       maxAge: 60 * 60 * 24 * 7,
       sameSite: "lax"
     });
 
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Update notification configurations in database
 export const updateNotificationsServer = createServerFn({ method: "POST" })
@@ -970,8 +1033,10 @@ export const updateNotificationsServer = createServerFn({ method: "POST" })
     })
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       const { error } = await supabase
         .from("users")
@@ -990,7 +1055,12 @@ export const updateNotificationsServer = createServerFn({ method: "POST" })
     }
 
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Save or update complaint reference ID (from cybercrime portals etc.)
 export const updateComplaintRefServer = createServerFn({ method: "POST" })
@@ -999,8 +1069,10 @@ export const updateComplaintRefServer = createServerFn({ method: "POST" })
     referenceId: z.string()
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       const { error } = await supabase
         .from("complaints")
@@ -1015,7 +1087,12 @@ export const updateComplaintRefServer = createServerFn({ method: "POST" })
     }
 
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});
 
 // Set detection status to Dismissed and store URL in known_safe_urls
 export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "POST" })
@@ -1024,8 +1101,10 @@ export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "PO
     url: z.string()
   }))
   .handler(async ({ data }) => {
+      try {
+
     const authUserId = await verifySessionServer();
-    if (!authUserId) throw new Error("Unauthorized");
+    if (!authUserId) return { success: false, error: "Unauthorized access. Please log in." };
     try {
       // 1. Update detection status to 'Dismissed'
       const { error: updateError } = await supabase
@@ -1053,4 +1132,9 @@ export const dismissDetectionAndSaveSafeUrlServer = createServerFn({ method: "PO
     }
 
     return { success: true };
-  });
+  
+      } catch (err: any) {
+        console.error("Server function error caught:", err);
+        return { success: false, error: "An unexpected server error occurred." };
+      }
+});

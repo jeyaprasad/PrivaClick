@@ -123,7 +123,6 @@ function ComplaintsPage() {
                     </div>
                     <div className="flex items-center gap-2 max-w-md">
                       <Input
-                        size="sm"
                         placeholder="Paste cybercrime.gov.in Reference #"
                         value={refInputs[c.id] ?? ""}
                         onChange={(e) => setRefInputs((prev) => ({ ...prev, [c.id]: e.target.value }))}

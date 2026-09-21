@@ -8,7 +8,7 @@ export const Route = createFileRoute("/api/cron-scan")({
       GET: async ({ request }) => {
         // Authenticate using CRON_SECRET or default fallback
         const authHeader = request.headers.get("Authorization");
-        const cronSecret = process.env.CRON_SECRET || "default_secret";
+        const cronSecret = process.env['CRON_SECRET'] || "default_secret";
         
         if (authHeader !== `Bearer ${cronSecret}`) {
           return new Response(JSON.stringify({ error: "Unauthorized" }), {

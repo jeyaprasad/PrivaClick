@@ -1,11 +1,11 @@
 import * as Sentry from "@sentry/node";
 
-const isProd = process.env.NODE_ENV === "production";
+const isProd = process.env['NODE_ENV'] === "production";
 
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || "",
+  dsn: process.env['SENTRY_DSN'] || "",
   environment: isProd ? "production" : "development",
-  enabled: !!process.env.SENTRY_DSN,
+  enabled: !!process.env['SENTRY_DSN'],
   tracesSampleRate: 1.0,
 });
 
@@ -22,7 +22,7 @@ export function logError(message: string, error?: unknown, context?: Record<stri
   }));
 
   // Sentry
-  if (process.env.SENTRY_DSN) {
+  if (process.env['SENTRY_DSN']) {
     Sentry.withScope((scope) => {
       if (context) {
         scope.setExtras(context);

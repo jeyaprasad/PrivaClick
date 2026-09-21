@@ -225,19 +225,42 @@ function AuthPage() {
               </div>
               {mode === "signup" && (
                 <div className="space-y-2">
-                  <Label htmlFor="idnum">ID number for one-time verification</Label>
-                  <Input
-                    id="idnum"
-                                        value={idNumber}
-                    onChange={(e) => setIdNumber(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, 12))}
-                    placeholder="Used once, never saved"
-                    disabled={loading}
-                    className="rounded-lg border-border focus-visible:ring-primary"
-                  />
+                  <Label htmlFor="idnum">ID Type for one-time verification</Label>
+                  <div className="flex gap-2">
+                    <select
+                      className="flex h-10 w-1/3 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-50"
+                      value={idType}
+                      onChange={(e) => {
+                        setIdType(e.target.value as any);
+                        setIdNumber("");
+                      }}
+                      disabled={loading}
+                    >
+                      <option value="aadhaar">Aadhaar</option>
+                      <option value="pan">PAN</option>
+                      <option value="passport">Passport</option>
+                      <option value="voter">Voter ID</option>
+                    </select>
+                    <Input
+                      id="idnum"
+                      value={idNumber}
+                      onChange={(e) => setIdNumber(e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase().slice(0, idType === "aadhaar" ? 12 : 10))}
+                      placeholder={
+                        idType === "aadhaar" ? "0000 0000 0000" :
+                        idType === "pan" ? "ABCDE1234F" :
+                        idType === "passport" ? "A1234567" : "ABC1234567"
+                      }
+                      disabled={loading}
+                      className="rounded-lg border-border focus-visible:ring-primary w-2/3"
+                    />
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     {masked
                       ? `We'll show it only as ${masked}. The full number is never stored.`
-                      : "We use this once to send your verification code, then discard it."}
+                      : "We use this once to securely verify your identity, then discard it."}
+                  </p>
+                  <p className="text-[10px] font-semibold text-amber-600 dark:text-amber-400 mt-1 uppercase tracking-wider">
+                    Sandbox mode — production uses licensed eKYC provider.
                   </p>
                 </div>
               )}

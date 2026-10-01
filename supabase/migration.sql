@@ -65,10 +65,6 @@ ALTER TABLE known_safe_urls ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Users can access their own safe urls" ON known_safe_urls FOR ALL USING (user_id = (current_setting('request.jwt.claims', true)::jsonb ->> 'userId'));
 
 ALTER TABLE email_otps ENABLE ROW LEVEL SECURITY;
--- email_otps needs to be accessible anonymously to create/verify OTPs before session exists
-CREATE POLICY "Anon can insert otps" ON email_otps FOR INSERT WITH CHECK (true);
-CREATE POLICY "Anon can select otps" ON email_otps FOR SELECT USING (true);
-CREATE POLICY "Anon can delete otps" ON email_otps FOR DELETE USING (true);
 
 
 -- Insert seed user
@@ -160,6 +156,3 @@ CREATE TABLE IF NOT EXISTS otp_requests (
 
 -- Enable RLS on otp_requests
 ALTER TABLE otp_requests ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Anon can insert otp_requests" ON otp_requests FOR INSERT WITH CHECK (true);
-CREATE POLICY "Anon can select otp_requests" ON otp_requests FOR SELECT USING (true);
-CREATE POLICY "Anon can delete otp_requests" ON otp_requests FOR DELETE USING (true);

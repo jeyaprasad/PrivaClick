@@ -20,7 +20,7 @@ async function getAuthSupabase() {
   return supabase;
 }
 
-import { supabase } from "./supabase.server";
+import { supabase, supabaseAdmin } from "./supabase.server";
 import { z } from "zod";
 // Helper for sending emails via Resend API
 async function sendEmail(to: string, subject: string, html: string, fromName: string) {
@@ -45,9 +45,10 @@ async function sendEmail(to: string, subject: string, html: string, fromName: st
   });
   
   if (!res.ok) {
-    const errText = await res.text();
-    return { success: false, error: "Email delivery failed." };
-  }
+      const errText = await res.text();
+      console.error(`[Resend Error ${res.status}] Body:`, errText);
+      return { success: false, error: "Email delivery failed." };
+    }
   return await res.json();
 }
 
@@ -813,8 +814,7 @@ export const sendOtp = createServerFn({ method: "POST" })
       // Check rate limit
       let recentRequests: any[] = [];
       try {
-        const { data, error } = await (await getAuthSupabase())
-          .from("otp_requests")
+        const { data, error } = await supabaseAdmin.from("otp_requests")
           .select("requested_at")
           .eq("email", email)
           .gte("requested_at", timeLimit)
@@ -835,7 +835,7 @@ export const sendOtp = createServerFn({ method: "POST" })
 
       // Insert new request record
       try {
-        await (await getAuthSupabase()).from("otp_requests").insert({ email });
+        await supabaseAdmin.from("otp_requests").insert({ email });
       } catch (e) {
         logError("Could not log otp request", e);
       }
@@ -849,8 +849,7 @@ export const sendOtp = createServerFn({ method: "POST" })
 
       try {
         // Store in Supabase
-        const { error } = await supabase
-          .from("email_otps")
+        const { error } = await supabaseAdmin.from("email_otps")
           .upsert({
             email,
             code,
@@ -925,8 +924,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
 
     try {
       // Fetch OTP record from Supabase
-      const { data: dbData, error } = await supabase
-        .from("email_otps")
+      const { data: dbData, error } = await supabaseAdmin.from("email_otps")
         .select("*")
         .eq("email", email)
         .single();
@@ -957,7 +955,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
       if (isExpired && !isDemoBypass) {
         localOtpStore.delete(email);
         try {
-          await (await getAuthSupabase()).from("email_otps").delete().eq("email", email);
+          await supabaseAdmin.from("email_otps").delete().eq("email", email);
         } catch (e) {}
         return { success: false, error: "Verification code has expired. Please request a new one." };
       }
@@ -971,7 +969,7 @@ export const verifyOtp = createServerFn({ method: "POST" })
     // Delete record on success to prevent reuse
     localOtpStore.delete(email);
     try {
-      await (await getAuthSupabase()).from("email_otps").delete().eq("email", email);
+      await supabaseAdmin.from("email_otps").delete().eq("email", email);
     } catch (e) {}
 
     // Ensure user record is registered in users table

@@ -62,13 +62,7 @@ export function PhotoUpload({
             .from("photos")
             .upload(filePath, file, {
               cacheControl: "3600",
-              upsert: false,
-              onUploadProgress: (progress) => {
-                const percent = (progress.loaded / progress.total) * 100;
-                setUploadingFiles((prev) =>
-                  prev.map((f) => (f.id === uploadId ? { ...f, progress: percent } : f))
-                );
-              },
+              upsert: false
             });
 
           if (error) throw error;

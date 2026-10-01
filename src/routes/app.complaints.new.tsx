@@ -13,9 +13,11 @@ import { usePrivaclick } from "@/lib/store";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 
 export const Route = createFileRoute("/app/complaints/new")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    detection: typeof search["detection"] === "string" ? (search["detection"] as string) : "",
-  }),
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      detection: search["detection"] ? (search["detection"] as string) : undefined,
+    }
+  },
   head: () => ({
     meta: [
       { title: "File a complaint — Privaclick" },
@@ -326,7 +328,7 @@ function NewComplaint() {
 
       // Save PDF bytes
       const pdfBytes = await pdfDoc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const blob = new Blob([new Uint8Array(pdfBytes)], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;

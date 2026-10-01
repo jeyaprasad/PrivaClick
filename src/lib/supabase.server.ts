@@ -9,6 +9,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
+export const supabaseAdmin = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  process.env['SUPABASE_SERVICE_ROLE_KEY'] || "placeholder-service-key",
+);
+
 export const supabase = createClient(
   supabaseUrl || "https://placeholder.supabase.co",
   supabaseAnonKey || "placeholder-anon-key",
